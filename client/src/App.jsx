@@ -147,7 +147,7 @@ const c = {
   primaryText: 'var(--color-primary-text)',
 }
 
-// ─── Shared UI ────────────────────────────────────────────────────────────────
+// ─── General UI ────────────────────────────────────────────────────────────────
 
 function PageHeader({ title, sub }) {
   return (
@@ -246,7 +246,7 @@ function Btn({ children, primary, onClick }) {
   )
 }
 
-// ─── Overview ────────────────────────────────────────────────────────────────
+// ─── Overview / Landing Page ────────────────────────────────────────────────────────────────
 
 function OverviewPage() {
   return (
@@ -329,7 +329,7 @@ function OverviewPage() {
   )
 }
 
-// ─── Sidebar ──────────────────────────────────────────────────────────────────
+// ─── Side Navbar ──────────────────────────────────────────────────────────────────
 
 const NAV = [
   { section: 'LEDGER', items: [
@@ -378,7 +378,7 @@ function Sidebar({ page, onNavigate, open }) {
   )
 }
 
-// ─── Placeholder pages (replace these one by one) ────────────────────────────
+// ─── Placeholder pages (ilisan ra ni tagsa2) ────────────────────────────
 
 function ComingSoon({ title }) {
   return <PageHeader title={title} sub="heheheh" />
@@ -406,7 +406,7 @@ export default function App() {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   })
 
-  // For now everyone is the Treasurer. Later this will come from login.
+  // Has 4 roles --- idefine pa; for now kani lang sa (role-based access ni)
   const role = 'Treasurer'
 
   useEffect(() => {
