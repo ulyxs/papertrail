@@ -433,9 +433,9 @@ export default function App() {
       <header className="app-header">
         <div className="header-left">
           <button className="menu-btn" onClick={() => setMenuOpen(o => !o)} aria-label="Toggle menu">☰</button>
-          <div style={{ border: `1.5px solid ${c.chromeText}`, padding: '3px 7px', fontSize: 13, fontWeight: 600, letterSpacing: '0.02em' }}>DTL</div>
+          <div style={{ border: `1.5px solid ${c.chromeText}`, padding: '3px 7px', fontSize: 13, fontWeight: 600, letterSpacing: '0.02em' }}>LOGOO</div>
           <div style={{ minWidth: 0 }}>
-            <div className="brand-title">Digital Treasury Ledger</div>
+            <div className="brand-title">Papertrail</div>
             <div className="brand-sub">Disbursement tracking &amp; accountability</div>
           </div>
         </div>
