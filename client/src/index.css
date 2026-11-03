@@ -109,3 +109,148 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* ───── Alignment fix ───── */
+#root {
+  text-align: left;
+  line-height: 1.4;
+}
+
+/* ───── Layout ───── */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  background: var(--color-bg);
+}
+
+.app-header {
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 24px;
+  background: var(--color-chrome);
+  color: var(--color-chrome-text);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.header-left,
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.brand-title { font-weight: 600; font-size: 13px; }
+.brand-sub { font-size: 11px; color: var(--color-text-faint); }
+
+.menu-btn {
+  display: none;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  padding-top: 20px;
+  overflow-y: auto;
+  background: var(--color-chrome);
+  color: var(--color-chrome-text);
+}
+
+.sidebar-backdrop { display: none; }
+
+.main {
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+  padding: 32px 40px;
+  background: var(--color-white);
+}
+
+/* ───── Overview parts ───── */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--color-border);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.table-scroll { overflow-x: auto; }
+
+.row-clock {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr 1fr 1.5fr;
+  gap: 12px;
+  min-width: 640px;
+}
+
+.row-audit {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1fr 1fr 1fr;
+  gap: 12px;
+  min-width: 680px;
+}
+
+/* ───── Tablet and phone ───── */
+@media (max-width: 900px) {
+  .menu-btn { display: inline-flex; }
+
+  .sidebar {
+    position: fixed;
+    top: 52px;
+    bottom: 0;
+    left: 0;
+    z-index: 40;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+  .sidebar.open { transform: translateX(0); }
+
+  .sidebar-backdrop.open {
+    display: block;
+    position: fixed;
+    top: 52px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 35;
+    background: rgba(0, 0, 0, 0.35);
+  }
+
+  .main { padding: 24px 20px; }
+}
+
+@media (max-width: 700px) {
+  .app-header { padding: 0 14px; }
+  .brand-sub,
+  .signed-label { display: none; }
+
+  .stat-grid { grid-template-columns: 1fr; }
+  .main { padding: 20px 14px; }
+}

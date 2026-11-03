@@ -119,32 +119,32 @@ import './App.css'
 //   )
 // }
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 
 const c = {
-  bg: '#cfe3f1',
-  surface: '#edf4fa',
-  white: '#ffffff',
-  border: '#8fb6d8',
-  borderLight: '#edf4fa',
-  text: '#243a5e',
-  muted: '#5f86a6',
-  faint: '#8fb6d8',
-  link: '#5f86a6',
-  badge: '#5f86a6',
-  overdue: '#8b1a1a',
-  flagged: '#c94f4f',
-  review: '#5f86a6',
-  amber: '#b87518',
-  greenBar: '#2a7a3a',
-  redBar: '#8b1a1a',
-  onDark: '#ffffff',
-  chrome: '#243a5e',
-  chromeText: '#edf4fa',
-  primary: '#edf4fa',
-  primaryText: '#243a5e',
+  bg: 'var(--color-bg)',
+  surface: 'var(--color-surface)',
+  white: 'var(--color-white)',
+  border: 'var(--color-border)',
+  borderLight: 'var(--color-border-light)',
+  text: 'var(--color-text)',
+  muted: 'var(--color-text-muted)',
+  faint: 'var(--color-text-faint)',
+  link: 'var(--color-link)',
+  badge: 'var(--color-badge)',
+  overdue: 'var(--color-overdue)',
+  flagged: 'var(--color-flagged)',
+  review: 'var(--color-review)',
+  amber: 'var(--color-amber)',
+  greenBar: 'var(--color-green-bar)',
+  redBar: 'var(--color-red-bar)',
+  onDark: 'var(--color-on-dark)',
+  chrome: 'var(--color-chrome)',
+  chromeText: 'var(--color-chrome-text)',
+  primary: 'var(--color-primary)',
+  primaryText: 'var(--color-primary-text)',
 }
 
 // ─── Shared UI ────────────────────────────────────────────────────────────────
@@ -177,7 +177,8 @@ function Panel({ children, style }) {
 function PanelHeader({ title, right }) {
   return (
     <div style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
+      flexWrap: 'wrap', gap: 6,
       padding: '14px 20px', borderBottom: `1px solid ${c.border}`,
     }}>
       <span style={{ fontFamily: 'var(--font-serif)', fontSize: 15, fontWeight: 400, color: c.text }}>{title}</span>
@@ -256,11 +257,11 @@ function OverviewPage() {
       />
 
       {/* Stat cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, border: `1px solid ${c.border}`, borderRadius: 6, overflow: 'hidden', marginBottom: 20 }}>
+      <div className="stat-grid">
         {[
-          { label: 'Cash on hand', value: '₱349,450.00', sub: '₱505,000.00 recorded, ₱155,550.00 released', color: c.text },
-          { label: 'Released but not yet liquidated', value: '₱117,450.00', sub: '5 open transaction(s)', color: c.amber },
-          { label: 'Past the deadline', value: '₱18,400.00', sub: '1 receipt(s) overdue · 1 person(s) on hold', color: c.overdue },
+          { label: 'Cash on hand', value: '₱00.00', sub: '₱00.00 recorded, ₱00.00 released', color: c.text },
+          { label: 'Released but not yet liquidated', value: '₱00.00', sub: '0 open transaction(s)', color: c.amber },
+          { label: 'Past the deadline', value: '₱00.00', sub: '0 receipt(s) overdue · 0 person(s) on hold', color: c.overdue },
         ].map((s, i) => (
           <div key={i} style={{ background: c.white, padding: '20px 24px' }}>
             <div style={{ fontSize: 12, color: c.muted, marginBottom: 10 }}>{s.label}</div>
@@ -273,59 +274,57 @@ function OverviewPage() {
       {/* Liquidation clock */}
       <Panel>
         <PanelHeader title="Liquidation clock" right="Seven days from release, counted from the date the cash left the ledger" />
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.5fr 1fr 1fr 1.5fr', padding: '8px 20px', borderBottom: `1px solid ${c.borderLight}` }}>
-          {['Voucher', 'Held by', 'Amount', 'Released', 'Time left'].map(h => (
-            <span key={h} style={{ fontSize: 12, color: c.muted }}>{h}</span>
-          ))}
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.5fr 1fr 1fr 1.5fr', padding: '16px 20px', alignItems: 'center' }}>
-          <div>
-            <div style={{ fontWeight: 500, color: c.text }}>Printing of modules</div>
-            <div style={{ fontSize: 11, color: c.muted }}>DV-2026-027 · Community Outreach</div>
+        <div className="table-scroll">
+          <div className="row-clock" style={{ padding: '8px 20px', borderBottom: `1px solid ${c.borderLight}` }}>
+            {['Voucher', 'Held by', 'Amount', 'Released', 'Time left'].map(h => (
+              <span key={h} style={{ fontSize: 12, color: c.muted }}>{h}</span>
+            ))}
           </div>
-          <span style={{ color: c.text }}>Rafael Ocampo</span>
-          <span style={{ fontWeight: 500 }}>₱18,400.00</span>
-          <span style={{ color: c.muted }}>Sep 6, 2026</span>
-          <DeadlineBar label="4 day(s) overdue" pct={100} overdue />
+          <div className="row-clock" style={{ padding: '16px 20px', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontWeight: 500, color: c.text }}>Printing of modules</div>
+              <div style={{ fontSize: 11, color: c.muted }}>DV-2026-027 · Community Outreach</div>
+            </div>
+            <span style={{ color: c.text }}>Rafael Ocampo</span>
+            <span style={{ fontWeight: 500 }}>₱00.00</span>
+            <span style={{ color: c.muted }}>Sep 6, 2026</span>
+            <DeadlineBar label="4 day(s) overdue" pct={100} overdue />
+          </div>
         </div>
       </Panel>
 
       {/* Waiting on auditor */}
       <Panel>
         <PanelHeader title="Waiting on the auditor" right="2 transaction(s) with receipts submitted" />
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 1fr', padding: '8px 20px', borderBottom: `1px solid ${c.borderLight}` }}>
-          {['Voucher', 'Receipt', 'Released', 'Receipted', 'Status'].map(h => (
-            <span key={h} style={{ fontSize: 12, color: c.muted }}>{h}</span>
+        <div className="table-scroll">
+          <div className="row-audit" style={{ padding: '8px 20px', borderBottom: `1px solid ${c.borderLight}` }}>
+            {['Voucher', 'Receipt', 'Released', 'Receipted', 'Status'].map(h => (
+              <span key={h} style={{ fontSize: 12, color: c.muted }}>{h}</span>
+            ))}
+          </div>
+          {[
+            { voucher: 'Speaker honoraria, 3 sessions', dv: 'DV-2026-023 · Dana Quiambao', receipt: 'Acknowledgement receipts, 3 pcs', rcptFile: 'AR-batch-03.pdf', released: '₱00.00', receipted: '₱00.00', status: 'For review' },
+            { voucher: 'Catering, congress day 1', dv: 'DV-2026-024 · Ken Abellera', receipt: 'Lola Ising Kitchen', rcptFile: 'OR-55902.pdf', released: '₱00.00', receipted: '₱00.00', status: 'Flagged', diff: true },
+          ].map((r, i) => (
+            <div key={i} className="row-audit" style={{ padding: '14px 20px', alignItems: 'start', borderTop: i > 0 ? `1px solid ${c.borderLight}` : 'none' }}>
+              <div>
+                <div style={{ fontWeight: 500 }}>{r.voucher}</div>
+                <div style={{ fontSize: 11, color: c.muted }}>{r.dv}</div>
+              </div>
+              <div>
+                <div>{r.receipt}</div>
+                <div style={{ fontSize: 11, color: c.muted }}>{r.rcptFile}</div>
+              </div>
+              <span>{r.released}</span>
+              <span style={{ color: r.diff ? c.overdue : c.text, fontWeight: r.diff ? 500 : 400 }}>{r.receipted}</span>
+              <span style={{ display: 'flex', alignItems: 'center' }}>
+                <StatusDot status={r.status} />
+                <span style={{ color: r.status === 'Flagged' ? c.flagged : c.review, fontSize: 13 }}>{r.status}</span>
+              </span>
+            </div>
           ))}
         </div>
-        {[
-          { voucher: 'Speaker honoraria, 3 sessions', dv: 'DV-2026-023 · Dana Quiambao', receipt: 'Acknowledgement receipts, 3 pcs', rcptFile: 'AR-batch-03.pdf', released: '₱45,000.00', receipted: '₱45,000.00', status: 'For review' },
-          { voucher: 'Catering, congress day 1', dv: 'DV-2026-024 · Ken Abellera', receipt: 'Lola Ising Kitchen', rcptFile: 'OR-55902.pdf', released: '₱36,800.00', receipted: '₱41,200.00', status: 'Flagged', diff: true },
-        ].map((r, i) => (
-          <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 1fr', padding: '14px 20px', alignItems: 'start', borderTop: i > 0 ? `1px solid ${c.borderLight}` : 'none' }}>
-            <div>
-              <div style={{ fontWeight: 500 }}>{r.voucher}</div>
-              <div style={{ fontSize: 11, color: c.muted }}>{r.dv}</div>
-            </div>
-            <div>
-              <div>{r.receipt}</div>
-              <div style={{ fontSize: 11, color: c.muted }}>{r.rcptFile}</div>
-            </div>
-            <span>{r.released}</span>
-            <span style={{ color: r.diff ? c.overdue : c.text, fontWeight: r.diff ? 500 : 400 }}>{r.receipted}</span>
-            <span style={{ display: 'flex', alignItems: 'center' }}>
-              <StatusDot status={r.status} />
-              <span style={{ color: r.status === 'Flagged' ? c.flagged : c.review, fontSize: 13 }}>{r.status}</span>
-            </span>
-          </div>
-        ))}
       </Panel>
-
-      <div style={{ textAlign: 'center', marginTop: 32 }}>
-        <div style={{ display: 'inline-block', background: c.primary, color: c.primaryText, padding: '10px 24px', borderRadius: 4, fontSize: 13, fontWeight: 500 }}>
-          Viewing as Treasurer
-        </div>
-      </div>
     </div>
   )
 }
@@ -350,16 +349,16 @@ const NAV = [
   ]},
 ]
 
-function Sidebar({ page, setPage }) {
+function Sidebar({ page, onNavigate, open }) {
   return (
-    <nav style={{ width: 220, background: c.chrome, color: c.chromeText, paddingTop: 20, flexShrink: 0, overflow: 'auto' }}>
+    <nav className={`sidebar${open ? ' open' : ''}`}>
       {NAV.map(group => (
         <div key={group.section} style={{ marginBottom: 24 }}>
           <div style={{ fontSize: 12, letterSpacing: 1, color: c.faint, padding: '0 20px 8px' }}>{group.section}</div>
           {group.items.map(item => {
             const active = page === item.id
             return (
-              <div key={item.id} onClick={() => setPage(item.id)}
+              <div key={item.id} onClick={() => onNavigate(item.id)}
                 style={{
                   padding: '10px 20px', cursor: 'pointer', fontSize: 14,
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -398,8 +397,22 @@ function AuditPage() { return <ComingSoon title="Audit trail" /> }
 
 export default function App() {
   const [page, setPage] = useState('overview')
-  const [role, setRole] = useState('Treasurer')
-  const [roleOpen, setRoleOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [theme, setTheme] = useState(() => {
+    try {
+      const saved = localStorage.getItem('theme')
+      if (saved) return saved
+    } catch {}
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  })
+
+  // For now everyone is the Treasurer. Later this will come from login.
+  const role = 'Treasurer'
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    try { localStorage.setItem('theme', theme) } catch {}
+  }, [theme])
 
   const pages = {
     overview: <OverviewPage />,
@@ -413,47 +426,42 @@ export default function App() {
     audit: <AuditPage />,
   }
 
+  const goTo = id => { setPage(id); setMenuOpen(false) }
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: c.bg }}>
-      {/* Top header */}
-      <header style={{ height: 52, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', background: c.chrome, color: c.chromeText, borderBottom: `1px solid ${c.border}`, flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+    <div className="app-shell">
+      <header className="app-header">
+        <div className="header-left">
+          <button className="menu-btn" onClick={() => setMenuOpen(o => !o)} aria-label="Toggle menu">☰</button>
           <div style={{ border: `1.5px solid ${c.chromeText}`, padding: '3px 7px', fontSize: 13, fontWeight: 600, letterSpacing: '0.02em' }}>DTL</div>
-          <div>
-            <div style={{ fontWeight: 600, fontSize: 13 }}>Digital Treasury Ledger</div>
-            <div style={{ fontSize: 11, color: c.faint }}>Disbursement tracking &amp; accountability</div>
+          <div style={{ minWidth: 0 }}>
+            <div className="brand-title">Digital Treasury Ledger</div>
+            <div className="brand-sub">Disbursement tracking &amp; accountability</div>
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 12, color: c.faint }}>Signed in as</span>
-          <div style={{ position: 'relative' }}>
-            <button onClick={() => setRoleOpen(o => !o)}
-              style={{ padding: '5px 10px', border: `1px solid ${c.border}`, borderRadius: 4, background: c.primary, color: c.primaryText, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-              {role} <span style={{ fontSize: 10 }}>▾</span>
-            </button>
-            {roleOpen && (
-              <div style={{ position: 'absolute', right: 0, top: '100%', marginTop: 2, background: c.white, border: `1px solid ${c.border}`, borderRadius: 4, zIndex: 100, minWidth: 160 }}>
-                {['Staff', 'Treasurer', 'Auditor', 'Administrator'].map(r => (
-                  <button key={r} onClick={() => { setRole(r); setRoleOpen(false) }}
-                    style={{ display: 'block', width: '100%', padding: '8px 14px', textAlign: 'left', background: r === role ? c.bg : 'transparent', border: 'none', fontSize: 13, cursor: 'pointer' }}>
-                    {r}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          <button style={{ width: 32, height: 32, border: `1px solid ${c.border}`, borderRadius: 4, background: c.primary, color: c.primaryText, cursor: 'pointer', fontSize: 14 }}>☀</button>
+
+        <div className="header-right">
+          <span className="signed-label" style={{ fontSize: 12, color: c.faint }}>Signed in as</span>
+          <span style={{ padding: '5px 10px', border: `1px solid ${c.border}`, borderRadius: 4, background: c.primary, color: c.primaryText, fontSize: 13, fontWeight: 500 }}>
+            {role}
+          </span>
+          <button
+            onClick={() => setTheme(t => (t === 'dark' ? 'light' : 'dark'))}
+            aria-label="Toggle dark mode"
+            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            style={{ width: 32, height: 32, border: `1px solid ${c.border}`, borderRadius: 4, background: c.primary, color: c.primaryText, cursor: 'pointer', fontSize: 14 }}>
+            {theme === 'dark' ? '☀' : '☾'}
+          </button>
         </div>
       </header>
 
-      {/* Body */}
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        <Sidebar page={page} setPage={setPage} />
-        <main style={{ flex: 1, overflow: 'auto', padding: '32px 40px', background: c.white }}>
+      <div className="app-body">
+        <Sidebar page={page} onNavigate={goTo} open={menuOpen} />
+        <div className={`sidebar-backdrop${menuOpen ? ' open' : ''}`} onClick={() => setMenuOpen(false)} />
+        <main className="main">
           {pages[page]}
         </main>
       </div>
     </div>
   )
 }
-
