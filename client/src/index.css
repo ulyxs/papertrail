@@ -3,17 +3,9 @@
   --text-h: #08060d;
   --bg: #fff;
   --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
@@ -36,17 +28,6 @@
     --text-h: #f3f4f6;
     --bg: #16171d;
     --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
   }
 }
 
@@ -95,21 +76,6 @@ p {
   margin: 0;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
-
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
-}
-
 /* ───── Alignment fix ───── */
 #root {
   text-align: left;
@@ -146,7 +112,8 @@ code {
   min-width: 0;
 }
 
-.brand-title { font-weight: 600; font-size: 13px; }
+.header-right { flex-shrink: 0; }
+.user-name { font-size: 12px; }
 .brand-sub { font-size: 11px; color: var(--color-text-faint); }
 
 .menu-btn {
@@ -189,6 +156,21 @@ code {
   background: var(--color-white);
 }
 
+.panel-header {
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.ledger-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.responsive-form-grid { min-width: 0; }
+
 /* ───── Overview parts ───── */
 .stat-grid {
   display: grid;
@@ -201,22 +183,6 @@ code {
   margin-bottom: 20px;
 }
 
-.table-scroll { overflow-x: auto; }
-
-.row-clock {
-  display: grid;
-  grid-template-columns: 2fr 1.5fr 1fr 1fr 1.5fr;
-  gap: 12px;
-  min-width: 640px;
-}
-
-.row-audit {
-  display: grid;
-  grid-template-columns: 2fr 2fr 1fr 1fr 1fr;
-  gap: 12px;
-  min-width: 680px;
-}
-
 /* ───── Tablet and phone ───── */
 @media (max-width: 900px) {
   .menu-btn { display: inline-flex; }
@@ -227,10 +193,14 @@ code {
     bottom: 0;
     left: 0;
     z-index: 40;
+    visibility: hidden;
     transform: translateX(-100%);
     transition: transform 0.2s ease;
   }
-  .sidebar.open { transform: translateX(0); }
+  .sidebar.open {
+    visibility: visible;
+    transform: translateX(0);
+  }
 
   .sidebar-backdrop.open {
     display: block;
@@ -241,16 +211,69 @@ code {
     left: 0;
     z-index: 35;
     background: rgba(0, 0, 0, 0.35);
+    border: 0;
+    padding: 0;
+    cursor: pointer;
   }
 
+  .menu-btn { width: 40px; height: 40px; }
   .main { padding: 24px 20px; }
 }
 
 @media (max-width: 700px) {
   .app-header { padding: 0 14px; }
+  .header-left,
+  .header-right { gap: 7px; }
   .brand-sub,
   .signed-label { display: none; }
 
-  .stat-grid { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: 1fr !important; }
   .main { padding: 20px 14px; }
+
+  .responsive-form-grid { grid-template-columns: 1fr !important; }
+
+  .main button,
+  .sidebar button,
+  .app-header button,
+  .app-modal button,
+  .main summary { min-height: 40px; }
+
+  .main summary { padding: 8px 0; }
+
+  .main input:not([type='checkbox']),
+  .main select,
+  .app-modal input:not([type='checkbox']),
+  .app-modal select { min-height: 44px; }
+
+  .main textarea,
+  .app-modal textarea { min-height: 96px; }
+
+  .modal-backdrop { padding: 12px !important; }
+  .app-modal {
+    max-height: calc(100dvh - 24px) !important;
+    padding: 14px !important;
+    overflow-wrap: anywhere;
+  }
+
+  .app-modal > div:first-child {
+    flex-wrap: wrap;
+    align-items: flex-start !important;
+  }
+
+  .app-modal > div:first-child > *:first-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .app-modal img {
+    max-width: 100%;
+    max-height: 68vh;
+    object-fit: contain;
+  }
+}
+
+@media (max-width: 380px) {
+  .user-name { display: none; }
+  .app-header { gap: 6px; }
+  .main { padding: 16px 10px; }
 }
