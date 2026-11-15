@@ -6,7 +6,7 @@ A React dashboard backed by a PHP JSON API and a MySQL/MariaDB database. It supp
 1. Start **MySQL** in the XAMPP Control Panel. Make sure PHP has the `pdo_mysql` extension enabled.
 2. Open phpMyAdmin at `http://localhost/phpmyadmin`.
    - For a **fresh install**, import [`server/schema.sql`](./server/schema.sql). Do not run the migrations on this new schema.
-   - To **upgrade an existing install**, do not re-import the schema. Apply each migration that has not already been run, in order: [`server/migrations/20261115_funds_category_proof.sql`](./server/migrations/20261115_funds_category_proof.sql), [`server/migrations/20261115_projects_receipt_proof.sql`](./server/migrations/20261115_projects_receipt_proof.sql), [`server/migrations/20261115_auth_accounts.sql`](./server/migrations/20261115_auth_accounts.sql), [`server/migrations/20261115_personnel_management.sql`](./server/migrations/20261115_personnel_management.sql), then [`server/migrations/20261115_voucher_recipients_accounts.sql`](./server/migrations/20261115_voucher_recipients_accounts.sql). Run each migration only once. Existing voucher recipients are archived, while historical financial records are preserved.
+   - To **upgrade an existing install**, do not re-import the schema. Migration scripts are not included in this checkout, so preserve your existing database and prepare a reviewed migration before upgrading it.
    - The initial schema contains no sample accounts or voucher recipients. Approved accounts automatically appear as voucher recipients; project and transaction tables start empty.
 3. **Provision the first Admin** from the repository root after the schema or migrations are installed. Run this only in a trusted terminal; password input is visible:
 
@@ -33,7 +33,7 @@ A React dashboard backed by a PHP JSON API and a MySQL/MariaDB database. It supp
 
 The Vite development server proxies `/api.php` to the PHP server. For the built site, run `npm run build` in `client`; Vite writes the site into `server/public`, alongside the API. Point Apache's document root at `server/public` to serve the built site.
 
-Database connection settings are read from `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD`. The defaults in [`server/config.php`](./server/config.php) match a typical local XAMPP install (`root` with an empty password); change them for your environment.
+Database connection settings are read from `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD`. The defaults in [`server/config/database.php`](./server/config/database.php) match a typical local XAMPP install (`root` with an empty password); change them for your environment.
 
 ## Accounts and access
 
