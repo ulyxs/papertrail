@@ -1,21 +1,16 @@
 import { useState } from 'react';
-import { PageHeader, Panel, PanelHeader, ApiField } from '../components/ui';
-import { c } from '../config/theme';
+import { PageHeader, Panel, PanelHeader, ApiField, Modal } from '../components/ui';
 import { submitForm } from '../services/forms';
 import { usePagination } from '../hooks/usePagination';
 import Pagination from '../components/Pagination';
 import TableContainer from '../components/TableContainer';
 export default function AccountManagementPage({ accounts, onSubmit, busy, currentUser, }) {
     const [search, setSearch] = useState('');
+    const [editingAccount, setEditingAccount] = useState(null);
     const statusLabels = {
         pending: 'Pending Approval',
         approved: 'Approved',
         disapproved: 'Disapproved',
-    };
-    const statusColors = {
-        pending: c.amber,
-        approved: c.greenBar,
-        disapproved: c.overdue,
     };
     const query = search.trim().toLowerCase();
     const filteredAccounts = accounts.filter(account => (`${account.first_name} ${account.last_name} ${account.email} ${account.role} ${statusLabels[account.status] || account.status}`
@@ -26,76 +21,50 @@ export default function AccountManagementPage({ accounts, onSubmit, busy, curren
       <PageHeader title="Account Management" sub="Review registrations, assign one of the approved system roles, and manage account status."/>
       <Panel>
         <PanelHeader title="Registered accounts" right={`${filteredAccounts.length} of ${accounts.length} account(s)`}/>
-        <div style={{ padding: '14px 18px', borderBottom: `1px solid ${c.borderLight}` }}>
-          <label htmlFor="account-search" style={{ display: 'block', marginBottom: 6, color: c.muted, fontSize: 12 }}>Search accounts</label>
+        <div className="page-search-panel">
+          <label htmlFor="account-search" className="page-search-label">Search accounts</label>
           <input id="account-search" type="search" value={search} onChange={event => {
             setSearch(event.target.value);
             accountPagination.setPage(1);
-        }} placeholder="Search by name, email, role, or status" style={{ width: '100%', maxWidth: 420, padding: '9px 12px', border: `1px solid ${c.border}`, borderRadius: 4, background: c.surface, color: c.text }}/>
+        }} placeholder="Search by name, email, role, or status" className="page-search-input"/>
         </div>
         <TableContainer>
-          <table style={{ width: '100%', minWidth: 920, borderCollapse: 'collapse', textAlign: 'left' }}>
+          <table className="page-table page-account-table">
             <thead>
               <tr>
-                {['Name', 'Email Address', 'Assigned Role', 'Account Status', 'Registration Date', 'Actions'].map(label => (<th key={label} scope="col" style={{ padding: '10px 14px', borderBottom: `1px solid ${c.borderLight}`, color: c.muted, fontSize: 12, fontWeight: 500, whiteSpace: 'nowrap' }}>{label}</th>))}
+                {['Name', 'Email Address', 'Assigned Role', 'Account Status', 'Registration Date', 'Actions'].map(label => (<th key={label} scope="col">{label}</th>))}
               </tr>
             </thead>
             <tbody>
               {filteredAccounts.length === 0
-            ? <tr><td colSpan={6} style={{ padding: 20, color: c.muted, textAlign: 'center' }}>{accounts.length === 0 ? 'No registered accounts.' : 'No accounts match your search.'}</td></tr>
+            ? <tr><td colSpan={6} className="page-empty-cell">{accounts.length === 0 ? 'No registered accounts.' : 'No accounts match your search.'}</td></tr>
             : accountPagination.records.map(account => {
                 const isCurrentUser = Number(account.id) === Number(currentUser.id);
                 return (<tr key={account.id}>
-                        <td style={{ padding: '14px', borderTop: `1px solid ${c.borderLight}`, fontWeight: 500, whiteSpace: 'nowrap' }}>{account.first_name} {account.last_name}{isCurrentUser ? ' (you)' : ''}</td>
-                        <td style={{ padding: '14px', borderTop: `1px solid ${c.borderLight}`, color: c.muted }}>{account.email}</td>
-                        <td style={{ padding: '14px', borderTop: `1px solid ${c.borderLight}` }}>{account.role}</td>
-                        <td style={{ padding: '14px', borderTop: `1px solid ${c.borderLight}` }}>
-                          <span style={{ display: 'inline-block', padding: '4px 9px', border: `1px solid ${statusColors[account.status] || c.border}`, borderRadius: 20, color: statusColors[account.status] || c.muted, fontSize: 11, fontWeight: 500, whiteSpace: 'nowrap' }}>
+                        <td className="page-cell-name">{account.first_name} {account.last_name}{isCurrentUser ? ' (you)' : ''}</td>
+                        <td className="page-cell-muted">{account.email}</td>
+                        <td>{account.role}</td>
+                        <td>
+                          <span className={`page-account-status page-account-status--${['pending', 'approved', 'disapproved'].includes(account.status) ? account.status : 'other'}`}>
                             {statusLabels[account.status] || account.status}
                           </span>
                         </td>
-                        <td style={{ padding: '14px', borderTop: `1px solid ${c.borderLight}`, color: c.muted, whiteSpace: 'nowrap' }}>
+                        <td className="page-cell-muted page-cell-nowrap">
                           {new Date(`${String(account.created_at).replace(' ', 'T')}Z`).toLocaleString('en-PH')}
                         </td>
-                        <td style={{ padding: '14px', borderTop: `1px solid ${c.borderLight}`, minWidth: 250 }}>
+                        <td className="page-cell-actions">
                           {isCurrentUser
-                        ? <span style={{ color: c.muted, fontSize: 12 }}>Your own account cannot be changed here.</span>
-                        : <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                                {account.status !== 'approved' && (<button type="button" disabled={busy} onClick={() => onSubmit('account', { operation: 'approve', account_id: account.id })} style={{ padding: '7px 11px', border: 'none', borderRadius: 4, background: c.greenBar, color: c.white, cursor: busy ? 'wait' : 'pointer' }}>
+                        ? <span className="page-muted page-small">Your own account cannot be changed here.</span>
+                        : <div className="page-account-actions">
+                                {account.status !== 'approved' && (<button type="button" disabled={busy} onClick={() => onSubmit('account', { operation: 'approve', account_id: account.id })} className="page-green-button">
                                     Approve
                                   </button>)}
-                                {account.status !== 'disapproved' && (<button type="button" disabled={busy} onClick={() => onSubmit('account', { operation: 'disapprove', account_id: account.id })} style={{ padding: '7px 11px', border: `1px solid ${c.overdue}`, borderRadius: 4, background: c.white, color: c.overdue, cursor: busy ? 'wait' : 'pointer' }}>
+                                {account.status !== 'disapproved' && (<button type="button" disabled={busy} onClick={() => onSubmit('account', { operation: 'disapprove', account_id: account.id })} className="page-danger-button">
                                     Disapprove
                                   </button>)}
-                                <details style={{ flexBasis: '100%' }}>
-                                  <summary style={{ cursor: 'pointer', color: c.link, fontSize: 12 }}>Edit account details</summary>
-                                  <form onSubmit={event => submitForm(event, onSubmit, 'account', currentUser.first_name + ' ' + currentUser.last_name)} style={{ paddingTop: 12 }}>
-                                    <input type="hidden" name="operation" value="update"/>
-                                    <input type="hidden" name="account_id" value={account.id}/>
-                                    <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
-                                      <ApiField label="First name" name="first_name" id={`account-${account.id}-first`} defaultValue={account.first_name}/>
-                                      <ApiField label="Last name" name="last_name" id={`account-${account.id}-last`} defaultValue={account.last_name}/>
-                                      <ApiField label="Email address" name="email" id={`account-${account.id}-email`} type="email" defaultValue={account.email}/>
-                                      <div>
-                                        <label htmlFor={`account-${account.id}-role`} style={{ display: 'block', fontSize: 12, color: c.muted, marginBottom: 6 }}>Assigned role</label>
-                                        <select id={`account-${account.id}-role`} name="role" required defaultValue={account.role} style={{ width: '100%', padding: '9px 12px', border: `1px solid ${c.border}`, borderRadius: 4, background: c.surface, color: c.text }}>
-                                          {['User', 'Auditor', 'Treasurer', 'Admin'].map(role => <option key={role} value={role}>{role}</option>)}
-                                        </select>
-                                      </div>
-                                      <div>
-                                        <label htmlFor={`account-${account.id}-status`} style={{ display: 'block', fontSize: 12, color: c.muted, marginBottom: 6 }}>Account status</label>
-                                        <select id={`account-${account.id}-status`} name="status" required defaultValue={account.status} style={{ width: '100%', padding: '9px 12px', border: `1px solid ${c.border}`, borderRadius: 4, background: c.surface, color: c.text }}>
-                                          <option value="pending">Pending Approval</option>
-                                          <option value="approved">Approved</option>
-                                          <option value="disapproved">Disapproved</option>
-                                        </select>
-                                      </div>
-                                    </div>
-                                    <button type="submit" disabled={busy} style={{ padding: '8px 13px', border: 'none', borderRadius: 4, background: c.primary, color: c.primaryText, cursor: busy ? 'wait' : 'pointer' }}>
-                                      {busy ? 'Saving…' : 'Save account changes'}
-                                    </button>
-                                  </form>
-                                </details>
+                                <button type="button" disabled={busy} onClick={() => setEditingAccount(account)} className="page-neutral-button">
+                                  Edit account details
+                                </button>
                               </div>}
                         </td>
                       </tr>);
@@ -105,6 +74,43 @@ export default function AccountManagementPage({ accounts, onSubmit, busy, curren
         </TableContainer>
         <Pagination pagination={accountPagination}/>
       </Panel>
+      {editingAccount && (
+        <Modal title="Edit account details" onClose={() => setEditingAccount(null)} width={560}>
+          <form onSubmit={async event => {
+            const completed = await submitForm(event, onSubmit, 'account', currentUser.first_name + ' ' + currentUser.last_name);
+            if (completed)
+              setEditingAccount(null);
+          }}>
+            <input type="hidden" name="operation" value="update"/>
+            <input type="hidden" name="account_id" value={editingAccount.id}/>
+            <div className="responsive-form-grid page-form-grid page-form-grid--two page-form-grid--account">
+              <ApiField label="First name" name="first_name" id={`account-${editingAccount.id}-first`} defaultValue={editingAccount.first_name}/>
+              <ApiField label="Last name" name="last_name" id={`account-${editingAccount.id}-last`} defaultValue={editingAccount.last_name}/>
+              <ApiField label="Email address" name="email" id={`account-${editingAccount.id}-email`} type="email" defaultValue={editingAccount.email}/>
+              <div>
+                <label htmlFor={`account-${editingAccount.id}-role`} className="page-field-label">Assigned role</label>
+                <select id={`account-${editingAccount.id}-role`} name="role" required defaultValue={editingAccount.role} className="page-select">
+                  {['User', 'Auditor', 'Treasurer', 'Admin'].map(role => <option key={role} value={role}>{role}</option>)}
+                </select>
+              </div>
+              <div>
+                <label htmlFor={`account-${editingAccount.id}-status`} className="page-field-label">Account status</label>
+                <select id={`account-${editingAccount.id}-status`} name="status" required defaultValue={editingAccount.status} className="page-select">
+                  <option value="pending">Pending Approval</option>
+                  <option value="approved">Approved</option>
+                  <option value="disapproved">Disapproved</option>
+                </select>
+              </div>
+            </div>
+            <div className="page-modal-actions">
+              <button type="button" onClick={() => setEditingAccount(null)} disabled={busy} className="page-neutral-button page-modal-button">Cancel</button>
+              <button type="submit" disabled={busy} className="page-primary-button page-modal-button">
+                {busy ? 'Saving…' : 'Save account changes'}
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
     </div>);
 }
 // ─── Sidebar Navigation ───────────────────────────────────────────────────────

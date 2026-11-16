@@ -1,39 +1,53 @@
 import { useState } from 'react';
 import { PageHeader, Panel, PanelHeader, Modal, EmptyState } from '../components/ui';
-import { c } from '../config/theme';
 import { money, cents, formatDate } from '../utils/formatters';
 import { usePagination } from '../hooks/usePagination';
 import Pagination from '../components/Pagination';
-function ProjectArchiveFolder({ name, records }) {
-    const recordPagination = usePagination(records);
+
+function ProjectArchiveFolder({ name, records, pendingRecords }) {
+    const allRecords = [...records, ...pendingRecords];
+    const recordPagination = usePagination(allRecords);
     const [recordsOpen, setRecordsOpen] = useState(false);
-    return (<div style={{ border: `1px solid ${c.border}`, borderRadius: 4, padding: 20 }}>
-      <div style={{ fontWeight: 500, fontSize: 15, marginBottom: 4 }}>{name}</div>
-      <div style={{ fontSize: 12, color: c.link, marginBottom: 16 }}>{records.length} approved transaction(s)</div>
-      <div style={{ fontFamily: 'var(--font-serif)', fontSize: 22, marginBottom: 16 }}>{money(records.reduce((total, record) => total + cents(record.amount), 0) / 100)}</div>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 10, marginTop: 16 }}>
-        <button type="button" onClick={() => setRecordsOpen(true)} style={{ display: 'inline-flex', alignItems: 'center', padding: '7px 10px', border: `1px solid ${c.border}`, borderRadius: 4, background: c.surface, color: c.link, cursor: 'pointer' }}>
+    const approvedTotal = records.reduce((total, record) => total + cents(record.amount), 0);
+    return (<div className="page-archive-folder">
+      <div className="page-archive-folder-name">{name}</div>
+      <div className="page-archive-folder-count">{records.length} approved transaction(s)</div>
+      {pendingRecords.length > 0 && <div className="page-archive-pending-count">{pendingRecords.length} pending transaction(s)</div>}
+      <div className="page-archive-folder-total">
+        <span className="page-archive-folder-total-label">Approved total</span>
+        {money(approvedTotal / 100)}
+      </div>
+      <div className="page-archive-folder-actions">
+        <button type="button" onClick={() => setRecordsOpen(true)} className="page-archive-records-button">
           View financial records
         </button>
-        <div style={{ display: 'inline-flex', alignItems: 'center', border: '1.5px solid #2a7a3a', color: '#2a7a3a', padding: '4px 12px', borderRadius: 3, fontSize: 11, letterSpacing: '0.05em', fontWeight: 500 }}>
-          Approved
+        <div className={`page-archive-approved-badge${pendingRecords.length > 0 ? ' has-pending' : ''}`}>
+          {pendingRecords.length > 0 ? 'In progress' : 'Approved'}
         </div>
       </div>
       {recordsOpen && (<Modal title={`${name} · Financial records`} onClose={() => setRecordsOpen(false)} width={760}>
-          <div style={{ marginBottom: 12, color: c.muted, fontSize: 12 }}>
-            {records.length} approved transaction(s) · Total {money(records.reduce((total, record) => total + cents(record.amount), 0) / 100)}
+          <div className="page-archive-records-summary">
+            {records.length} approved · {pendingRecords.length} pending · Approved total {money(approvedTotal / 100)}
           </div>
-          <div style={{ overflowX: 'auto' }}>
-            <div style={{ minWidth: 650 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr 1.4fr 1fr 1fr', gap: 12, padding: '9px 0', borderBottom: `1px solid ${c.borderLight}` }}>
-                {['Voucher', 'Purpose', 'Accountable person', 'Released', 'Amount'].map(label => (<span key={label} style={{ fontSize: 11, color: c.muted }}>{label}</span>))}
+          <div className="page-archive-records-scroll">
+            <div className="page-archive-records-table">
+              <div className="page-archive-records-header">
+                {['Voucher', 'Purpose', 'Accountable person', 'Released', 'Amount', 'Status'].map(label => (<span key={label}>{label}</span>))}
               </div>
-              {recordPagination.records.map(record => (<div key={record.id} style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr 1.4fr 1fr 1fr', gap: 12, alignItems: 'center', padding: '12px 0', borderTop: `1px solid ${c.borderLight}`, fontSize: 12 }}>
-                  <span style={{ color: c.link, fontWeight: 500 }}>{record.voucher_number}</span>
+              {recordPagination.records.map(record => (<div key={record.id} className="page-archive-record-row">
+                  <span className="page-archive-record-voucher">{record.voucher_number}</span>
                   <span>{record.purpose}</span>
                   <span>{record.accountable}</span>
                   <span>{formatDate(record.released_on)}</span>
-                  <span style={{ fontWeight: 500 }}>{money(record.amount)}</span>
+                  <span className="page-archive-record-amount">{money(record.amount)}</span>
+                  <span className={`page-archive-record-status${record.status !== 'approved' ? ' pending' : ''}`}>
+                    {{
+                        awaiting_receipt: 'Awaiting receipt',
+                        for_review: 'Pending review',
+                        flagged: 'Flagged',
+                        approved: 'Approved',
+                    }[record.status] || record.status}
+                  </span>
                 </div>))}
             </div>
           </div>
@@ -42,19 +56,29 @@ function ProjectArchiveFolder({ name, records }) {
     </div>);
 }
 export default function ArchivePage({ dashboard }) {
-    const closed = dashboard.disbursements.filter(record => record.status === 'approved');
-    const projects = closed.reduce((groups, record) => {
+    const approved = dashboard.disbursements.filter(record => record.status === 'approved');
+    const pending = dashboard.disbursements.filter(record => record.status !== 'approved');
+    const approvedProjects = approved.reduce((groups, record) => {
         groups[record.project] = [...(groups[record.project] || []), record];
         return groups;
     }, {});
-    const projectEntries = Object.entries(projects);
+    const pendingProjects = pending.reduce((groups, record) => {
+        groups[record.project] = [...(groups[record.project] || []), record];
+        return groups;
+    }, {});
+    const projectNames = [...new Set([...Object.keys(approvedProjects), ...Object.keys(pendingProjects)])];
+    const projectEntries = projectNames.map(name => [
+        name,
+        approvedProjects[name] || [],
+        pendingProjects[name] || [],
+    ]);
     const projectPagination = usePagination(projectEntries);
     return (<div>
-      <PageHeader title="Archive" sub="Closed records, kept by event or project so a year-end audit reads in one pass."/>
+      <PageHeader title="Financial reports" sub="Project transaction summaries, including records that are still awaiting completion or approval."/>
       <Panel>
-        <PanelHeader title="Project folders" right={`${closed.length} closed record(s)`}/>
-        <div style={{ padding: 20, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16 }}>
-          {projectEntries.length === 0 ? <EmptyState>No approved records have been archived.</EmptyState> : projectPagination.records.map(([name, records]) => (<ProjectArchiveFolder key={name} name={name} records={records}/>))}
+        <PanelHeader title="Project folders" right={`${approved.length} approved transaction(s) · ${pending.length} pending transaction(s)`}/>
+        <div className="page-archive-project-grid">
+          {projectEntries.length === 0 ? <EmptyState>No project transactions have been recorded.</EmptyState> : projectPagination.records.map(([name, records, pendingRecords]) => (<ProjectArchiveFolder key={name} name={name} records={records} pendingRecords={pendingRecords}/>))}
         </div>
         <Pagination pagination={projectPagination}/>
       </Panel>

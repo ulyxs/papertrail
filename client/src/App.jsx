@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import './App.css';
+import './pages.css';
 import './login.css';
 import { c } from './config/theme';
 import AuthPage from './components/AuthPage';

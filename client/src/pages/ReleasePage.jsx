@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { PageHeader, Panel, PanelHeader, StatusDot, ApiField, Modal, EmptyState } from '../components/ui';
-import { c } from '../config/theme';
 import { submitForm } from '../services/forms';
 import { money, today, formatDate, statusLabel } from '../utils/formatters';
 import { usePagination } from '../hooks/usePagination';
 import Pagination from '../components/Pagination';
 function ProjectsManager({ projects, onSubmit, busy, actor, search, setSearch, onSelect, onOpenArchive, }) {
+    const [editingProject, setEditingProject] = useState(null);
     const activeProjects = projects.filter(project => project.status === 'active');
     const archivedProjects = projects.filter(project => project.status === 'archived');
     const normalizedSearch = search.trim().toLocaleLowerCase();
@@ -13,31 +13,31 @@ function ProjectsManager({ projects, onSubmit, busy, actor, search, setSearch, o
     const projectPagination = usePagination(visibleProjects, 10, normalizedSearch);
     return (<Panel>
       <PanelHeader title="Project management" right={`${activeProjects.length} active project(s)`}/>
-      <div style={{ padding: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
-          <label htmlFor="project-search" style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', whiteSpace: 'nowrap', border: 0 }}>Search projects</label>
+      <div className="page-project-manager-body">
+        <div className="page-project-search-row">
+          <label htmlFor="project-search" className="page-sr-only">Search projects</label>
           <input id="project-search" type="search" value={search} onChange={event => {
             setSearch(event.target.value);
             projectPagination.setPage(1);
-        }} placeholder="Search project name…" style={{ flex: '1 1 240px', minWidth: 180, maxWidth: 420, padding: '9px 12px', border: `1px solid ${c.border}`, borderRadius: 4, background: c.surface, color: c.text }}/>
-          <button type="button" onClick={onOpenArchive} aria-label={`View archived projects (${archivedProjects.length})`} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 12px', border: `1px solid ${c.border}`, borderRadius: 4, background: c.surface, color: c.text, cursor: 'pointer' }}>
+        }} placeholder="Search project name…" className="page-search-input page-project-search-input"/>
+          <button type="button" onClick={onOpenArchive} aria-label={`View archived projects (${archivedProjects.length})`} className="page-project-archive-button">
             <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 4h18v5H3zM5 9v11h14V9M10 13h4"/>
             </svg>
-            Archive <span style={{ color: c.muted }}>({archivedProjects.length})</span>
+            Archive <span className="page-muted">({archivedProjects.length})</span>
           </button>
         </div>
 
-        <details style={{ marginBottom: 16 }}>
-          <summary style={{ cursor: 'pointer', color: c.link, fontWeight: 500 }}>Create a project</summary>
-          <form onSubmit={event => submitForm(event, onSubmit, 'project', actor)} style={{ padding: '16px 0 4px' }}>
+        <details className="page-project-create">
+          <summary>Create a project</summary>
+          <form onSubmit={event => submitForm(event, onSubmit, 'project', actor)} className="page-project-form">
             <input type="hidden" name="operation" value="create"/>
-            <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 12, marginBottom: 14 }}>
+            <div className="responsive-form-grid page-form-grid page-form-grid--three page-project-form-grid">
               <ApiField label="Project Name" name="project_name" id="new-project-name" placeholder="Research Congress"/>
               <ApiField label="Project Start Date" name="start_date" id="new-project-start" type="date"/>
               <ApiField label="Project End Date" name="end_date" id="new-project-end" type="date"/>
             </div>
-            <button type="submit" disabled={busy} style={{ padding: '8px 14px', border: 'none', borderRadius: 4, background: c.primary, color: c.primaryText }}>
+            <button type="submit" disabled={busy} className="page-primary-button">
               {busy ? 'Saving…' : 'Save project'}
             </button>
           </form>
@@ -47,51 +47,62 @@ function ProjectsManager({ projects, onSubmit, busy, actor, search, setSearch, o
             ? <EmptyState>{activeProjects.length === 0 ? 'No active projects yet. Create or restore a project before releasing funds.' : 'No active projects match your search.'}</EmptyState>
             : projectPagination.records.map(project => {
                 const linkedRecords = Number(project.linked_transactions);
-                return (<div key={project.id} style={{ padding: '14px 0', borderTop: `1px solid ${c.borderLight}` }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: 16 }}>
+                return (<div key={project.id} className="page-project-row">
+                  <div className="page-project-row-content">
                     <div>
-                      <div style={{ fontWeight: 500 }}>{project.project_name}</div>
-                      <div style={{ marginTop: 4, fontSize: 12, color: c.muted }}>
+                      <div className="page-medium">{project.project_name}</div>
+                      <div className="page-project-meta">
                         {project.start_date && project.end_date ? `${formatDate(project.start_date)} – ${formatDate(project.end_date)}` : 'Dates not recorded'}
                         {' · '}{linkedRecords} linked financial record(s)
                       </div>
                     </div>
-                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'end' }}>
-                      <button type="button" onClick={() => onSelect(project.id)} style={{ padding: '6px 10px', border: 'none', borderRadius: 4, background: c.primary, color: c.primaryText, cursor: 'pointer' }}>
+                    <div className="page-project-actions">
+                      <button type="button" onClick={() => onSelect(project.id)} className="page-primary-button page-button--compact">
                         Select project
                       </button>
-                      <button type="button" onClick={() => onSubmit('project', { operation: 'archive', project_id: project.id, actor })} disabled={busy} style={{ padding: '6px 10px', border: `1px solid ${c.border}`, borderRadius: 4, background: c.surface, color: c.text, cursor: busy ? 'wait' : 'pointer' }}>
+                      <button type="button" onClick={() => onSubmit('project', { operation: 'archive', project_id: project.id, actor })} disabled={busy} className="page-neutral-button page-button--compact page-project-action">
                         Archive project
+                      </button>
+                      <button type="button" onClick={() => setEditingProject(project)} disabled={busy} className="page-neutral-button page-button--compact">
+                        Edit project details
                       </button>
                       <button type="button" disabled={busy || linkedRecords > 0} onClick={() => {
                         if (window.confirm(`Delete project "${project.project_name}"?`)) {
                             onSubmit('project', { operation: 'delete', project_id: project.id, actor });
                         }
-                    }} title={linkedRecords > 0 ? 'Projects with financial records cannot be deleted; archive instead.' : 'Delete project'} style={{ padding: '6px 10px', border: `1px solid ${c.overdue}`, borderRadius: 4, background: 'transparent', color: c.overdue, cursor: busy || linkedRecords > 0 ? 'not-allowed' : 'pointer', opacity: linkedRecords > 0 ? 0.6 : 1 }}>
+                    }} title={linkedRecords > 0 ? 'Projects with financial records cannot be deleted; archive instead.' : 'Delete project'} className={`page-project-delete${linkedRecords > 0 ? ' has-linked-records' : ''}`}>
                         Delete
                       </button>
                     </div>
                   </div>
-                  {linkedRecords > 0 && <div style={{ marginTop: 6, color: c.muted, fontSize: 11 }}>This project has financial records; archive it rather than deleting it.</div>}
-                  <details style={{ marginTop: 8 }}>
-                    <summary style={{ cursor: 'pointer', color: c.link, fontSize: 12 }}>Edit project details</summary>
-                    <form onSubmit={event => submitForm(event, onSubmit, 'project', actor)} style={{ padding: '12px 0 4px' }}>
-                      <input type="hidden" name="operation" value="update"/>
-                      <input type="hidden" name="project_id" value={project.id}/>
-                      <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 12, marginBottom: 14 }}>
-                        <ApiField label="Project Name" name="project_name" id={`project-${project.id}-name`} defaultValue={project.project_name}/>
-                        <ApiField label="Project Start Date" name="start_date" id={`project-${project.id}-start`} type="date" defaultValue={project.start_date || ''}/>
-                        <ApiField label="Project End Date" name="end_date" id={`project-${project.id}-end`} type="date" defaultValue={project.end_date || ''}/>
-                      </div>
-                      <button type="submit" disabled={busy} style={{ padding: '8px 14px', border: 'none', borderRadius: 4, background: c.primary, color: c.primaryText }}>
-                        {busy ? 'Saving…' : 'Save changes'}
-                      </button>
-                    </form>
-                  </details>
+                  {linkedRecords > 0 && <div className="page-project-warning">This project has financial records; archive it rather than deleting it.</div>}
                 </div>);
             })}
         <Pagination pagination={projectPagination}/>
       </div>
+      {editingProject && (
+        <Modal title="Edit project details" onClose={() => setEditingProject(null)} width={680}>
+          <form onSubmit={async event => {
+            const completed = await submitForm(event, onSubmit, 'project', actor);
+            if (completed)
+              setEditingProject(null);
+          }}>
+            <input type="hidden" name="operation" value="update"/>
+            <input type="hidden" name="project_id" value={editingProject.id}/>
+            <div className="responsive-form-grid page-form-grid page-form-grid--three page-project-form-grid">
+              <ApiField label="Project Name" name="project_name" id={`project-${editingProject.id}-name`} defaultValue={editingProject.project_name}/>
+              <ApiField label="Project Start Date" name="start_date" id={`project-${editingProject.id}-start`} type="date" defaultValue={editingProject.start_date || ''}/>
+              <ApiField label="Project End Date" name="end_date" id={`project-${editingProject.id}-end`} type="date" defaultValue={editingProject.end_date || ''}/>
+            </div>
+            <div className="page-modal-actions">
+              <button type="button" onClick={() => setEditingProject(null)} disabled={busy} className="page-neutral-button page-modal-button">Cancel</button>
+              <button type="submit" disabled={busy} className="page-primary-button page-modal-button">
+                {busy ? 'Saving…' : 'Save changes'}
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
     </Panel>);
 }
 function ArchivedProjectsModal({ projects, onSubmit, busy, actor, onClose, }) {
@@ -106,15 +117,15 @@ function ArchivedProjectsModal({ projects, onSubmit, busy, actor, onClose, }) {
       {archivedProjects.length === 0
             ? <EmptyState>There are no archived projects.</EmptyState>
             : <div>
-            {projectPagination.records.map((project, index) => (<div key={project.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '14px 0', borderTop: index > 0 ? `1px solid ${c.borderLight}` : 'none' }}>
+            {projectPagination.records.map((project, index) => (<div key={project.id} className={`page-archived-project${index > 0 ? ' has-divider' : ''}`}>
                 <div>
-                  <div style={{ fontWeight: 500, color: c.text }}>{project.project_name}</div>
-                  <div style={{ marginTop: 4, fontSize: 12, color: c.muted }}>
+                  <div className="page-medium">{project.project_name}</div>
+                  <div className="page-project-meta">
                     {project.start_date && project.end_date ? `${formatDate(project.start_date)} – ${formatDate(project.end_date)}` : 'Dates not recorded'}
                     {' · '}{Number(project.linked_transactions)} linked financial record(s)
                   </div>
                 </div>
-                <button type="button" onClick={() => restoreProject(project)} disabled={busy} style={{ flexShrink: 0, padding: '7px 12px', border: `1px solid ${c.border}`, borderRadius: 4, background: c.surface, color: c.text, cursor: busy ? 'wait' : 'pointer' }}>
+                <button type="button" onClick={() => restoreProject(project)} disabled={busy} className="page-neutral-button page-restore-project">
                   {busy ? 'Restoring…' : 'Restore'}
                 </button>
               </div>))}
@@ -129,29 +140,29 @@ function NewVoucherModal({ project, people, summary, onSubmit, busy, actor, onCl
             onClose();
     }
     return (<Modal title="New disbursement voucher" onClose={onClose} width={680}>
-      <p style={{ margin: '-4px 0 18px', color: c.muted, fontSize: 13 }}>Project: <strong style={{ color: c.text }}>{project.project_name}</strong></p>
+      <p className="page-voucher-project">Project: <strong>{project.project_name}</strong></p>
       <form onSubmit={handleSubmit}>
         <input type="hidden" name="project_id" value={project.id}/>
-        <div style={{ marginBottom: 16 }}>
+        <div className="page-form-section--short">
           <ApiField label="What the money is for" name="purpose" placeholder="Venue deposit, general assembly"/>
         </div>
-        <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="responsive-form-grid page-form-grid page-form-grid--two page-voucher-form-grid">
           <div>
-            <label htmlFor="voucher-person-id" style={{ display: 'block', fontSize: 12, color: c.muted, marginBottom: 6 }}>Accountable person</label>
-            <select id="voucher-person-id" name="person_id" required defaultValue="" style={{ width: '100%', padding: '9px 12px', border: `1px solid ${c.border}`, borderRadius: 4, background: c.surface, color: c.text }}>
+            <label htmlFor="voucher-person-id" className="page-field-label">Accountable person</label>
+            <select id="voucher-person-id" name="person_id" required defaultValue="" className="page-select">
               <option value="" disabled>Select a person</option>
               {people.map(person => <option key={person.id} value={person.id} disabled={Boolean(Number(person.blocked))}>{person.name} — {person.email} ({person.position}){Number(person.blocked) ? ' (on hold)' : ''}</option>)}
             </select>
-            <p style={{ fontSize: 11, color: c.muted, marginTop: 4 }}>People with an overdue or flagged transaction are locked out until they settle it.</p>
+            <p className="page-voucher-hint">People with an overdue or flagged transaction are locked out until they settle it.</p>
           </div>
           <ApiField label="Amount to release" name="amount" placeholder="0.00" type="number" min="0.01" step="0.01" hint={`Cash on hand: ${money(summary.cash_on_hand)}`}/>
         </div>
-        <div style={{ marginBottom: 20 }}>
+        <div className="page-form-section">
           <ApiField label="Date released" name="released_on" type="date" defaultValue={today()} hint="Receipts are due seven days after release."/>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'end', gap: 10 }}>
-          <button type="button" onClick={onClose} disabled={busy} style={{ padding: '8px 14px', border: `1px solid ${c.border}`, borderRadius: 4, background: c.white, color: c.text, cursor: busy ? 'wait' : 'pointer' }}>Cancel</button>
-          <button type="submit" disabled={busy} style={{ padding: '8px 14px', border: 'none', borderRadius: 4, background: c.primary, color: c.primaryText, cursor: busy ? 'wait' : 'pointer' }}>
+        <div className="page-modal-actions">
+          <button type="button" onClick={onClose} disabled={busy} className="page-neutral-button page-modal-button">Cancel</button>
+          <button type="submit" disabled={busy} className="page-primary-button page-modal-button">
             {busy ? 'Saving…' : 'Release the funds'}
           </button>
         </div>
@@ -172,17 +183,17 @@ export default function ReleasePage({ dashboard, onSubmit, busy, actor, }) {
     const voucherPagination = usePagination(projectDisbursements, 10, selectedProjectId);
     if (selectedProject) {
         return (<div>
-        <button type="button" onClick={() => setSelectedProjectId(null)} style={{ marginBottom: 20, padding: '7px 10px', border: `1px solid ${c.border}`, borderRadius: 4, background: c.surface, color: c.link, cursor: 'pointer' }}>
+        <button type="button" onClick={() => setSelectedProjectId(null)} className="page-neutral-button page-back-button">
           ← Back to Project Management
         </button>
         <PageHeader title={selectedProject.project_name} sub={`${selectedProject.start_date && selectedProject.end_date ? `${formatDate(selectedProject.start_date)} – ${formatDate(selectedProject.end_date)}` : 'Project dates not recorded'} · Active project`}/>
         <Panel>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: 20, flexWrap: 'wrap' }}>
+          <div className="page-project-vouchers-header">
             <div>
-              <div style={{ fontFamily: 'var(--font-serif)', fontSize: 16, color: c.text }}>Project disbursements</div>
-              <div style={{ marginTop: 4, fontSize: 12, color: c.muted }}>{projectDisbursements.length} voucher(s) linked to this project</div>
+              <div className="page-project-vouchers-title">Project disbursements</div>
+              <div className="page-project-meta">{projectDisbursements.length} voucher(s) linked to this project</div>
             </div>
-            <button type="button" onClick={() => setVoucherOpen(true)} disabled={busy} style={{ padding: '9px 14px', border: 'none', borderRadius: 4, background: c.primary, color: c.primaryText, cursor: busy ? 'wait' : 'pointer' }}>
+            <button type="button" onClick={() => setVoucherOpen(true)} disabled={busy} className="page-primary-button">
               New Disbursement Voucher
             </button>
           </div>
@@ -192,18 +203,18 @@ export default function ReleasePage({ dashboard, onSubmit, busy, actor, }) {
           <PanelHeader title="Voucher history" right={`${projectDisbursements.length} record(s)`}/>
           {projectDisbursements.length === 0
                 ? <EmptyState>No disbursement vouchers have been recorded for this project.</EmptyState>
-                : <div style={{ overflowX: 'auto' }}>
-                <div style={{ minWidth: 760 }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr 1.4fr 1fr 1fr 1.3fr', gap: 12, padding: '9px 20px', borderBottom: `1px solid ${c.borderLight}` }}>
-                    {['Voucher', 'Purpose', 'Accountable person', 'Released', 'Amount', 'Status'].map(label => (<span key={label} style={{ fontSize: 11, color: c.muted }}>{label}</span>))}
+                : <div className="page-release-table-scroll">
+                <div className="page-release-table">
+                  <div className="page-release-header">
+                    {['Voucher', 'Purpose', 'Accountable person', 'Released', 'Amount', 'Status'].map(label => (<span key={label}>{label}</span>))}
                   </div>
-                  {voucherPagination.records.map((record, index) => (<div key={record.id} style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr 1.4fr 1fr 1fr 1.3fr', gap: 12, alignItems: 'center', padding: '13px 20px', borderTop: index > 0 ? `1px solid ${c.borderLight}` : 'none', fontSize: 12 }}>
-                      <span style={{ color: c.link, fontWeight: 500 }}>{record.voucher_number}</span>
+                  {voucherPagination.records.map((record, index) => (<div key={record.id} className={`page-release-row${index > 0 ? ' has-divider' : ''}`}>
+                      <span className="page-release-voucher">{record.voucher_number}</span>
                       <span>{record.purpose}</span>
                       <span>{record.accountable}</span>
                       <span>{formatDate(record.released_on)}</span>
-                      <span style={{ fontWeight: 500 }}>{money(record.amount)}</span>
-                      <span style={{ whiteSpace: 'nowrap' }}><StatusDot status={statusLabel(record)}/>{statusLabel(record)}</span>
+                      <span className="page-medium">{money(record.amount)}</span>
+                      <span className="page-cell-nowrap"><StatusDot status={statusLabel(record)}/>{statusLabel(record)}</span>
                     </div>))}
                 </div>
               </div>}

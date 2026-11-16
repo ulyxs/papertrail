@@ -16,7 +16,7 @@ function load_dashboard(PDO $db, array $account): array
     $disbursements = $db->query(
         "SELECT d.id, d.voucher_number, d.purpose, d.person_id, p.account_id AS recipient_account_id,
                 COALESCE(CONCAT(a.first_name, ' ', a.last_name), p.name) AS accountable,
-                d.project_id, pr.project_name AS project,
+                d.project_id, pr.project_name AS project, pr.status AS project_status,
                 d.amount, d.released_on, DATE_ADD(d.released_on, INTERVAL 7 DAY) AS due_on,
                 d.status, r.vendor AS receipt_vendor, r.reference AS receipt_reference,
                 r.amount AS receipt_amount, r.submitted_on AS receipt_submitted_on, r.note AS receipt_note,
