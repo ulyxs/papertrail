@@ -31,6 +31,16 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
             : <>
             <TableContainer>
               <table className="page-table page-review-table">
+                <colgroup>
+                  <col className="page-review-col-voucher"/>
+                  <col className="page-review-col-accountable"/>
+                  <col className="page-review-col-details"/>
+                  <col className="page-review-col-amount"/>
+                  <col className="page-review-col-amount"/>
+                  <col className="page-review-col-difference"/>
+                  <col className="page-review-col-proof"/>
+                  <col className="page-review-col-actions"/>
+                </colgroup>
                 <thead>
                   <tr>{['Voucher', 'Accountable person', 'Receipt details', 'Released', 'Receipted', 'Difference', 'Proof', 'Actions'].map(label => <th key={label} scope="col">{label}</th>)}</tr>
                 </thead>
@@ -81,6 +91,15 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
             : <>
             <TableContainer>
               <table className="page-table page-review-table">
+                <colgroup>
+                  <col className="page-review-col-voucher"/>
+                  <col className="page-review-col-accountable"/>
+                  <col className="page-review-col-details"/>
+                  <col className="page-review-col-amount"/>
+                  <col className="page-review-col-amount"/>
+                  <col className="page-review-col-proof"/>
+                  <col className="page-review-col-resolution"/>
+                </colgroup>
                 <thead>
                   <tr>{['Voucher', 'Accountable person', 'Receipt details', 'Released', 'Receipted', 'Proof', 'Resolution'].map(label => <th key={label} scope="col">{label}</th>)}</tr>
                 </thead>

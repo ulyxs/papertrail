@@ -666,7 +666,38 @@
 }
 
 .page-review-table {
+  width: max-content;
   min-width: 1120px;
+  table-layout: fixed;
+}
+
+.page-review-col-voucher {
+  width: 180px;
+}
+
+.page-review-col-accountable {
+  width: 160px;
+}
+
+.page-review-col-details {
+  width: 300px;
+}
+
+.page-review-col-amount {
+  width: 110px;
+}
+
+.page-review-col-difference,
+.page-review-col-resolution {
+  width: 150px;
+}
+
+.page-review-col-proof {
+  width: 170px;
+}
+
+.page-review-col-actions {
+  width: 260px;
 }
 
 .page-review-table td {
