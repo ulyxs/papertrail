@@ -14,11 +14,19 @@ A React dashboard backed by a PHP JSON API and a MySQL/MariaDB database. It supp
    C:\xampp\php\php.exe server\setup_initial_admin.php
    ```
 
+   ```
+   php server/setup_initial_admin.php
+   ```
+
    The command is CLI-only, creates an approved Admin with a securely hashed password, and refuses to run once any Admin account exists. Registrations cannot assign themselves the Admin role.
 4. Start the PHP API server from the repository root:
 
    ```powershell
    C:\xampp\php\php.exe -S 127.0.0.1:8000 -t server/public
+   ```
+
+   ```
+   php -S 127.0.0.1:8000 -t server/public
    ```
 
 5. In a second terminal:
