@@ -20,11 +20,11 @@ export default function AuthPage({ csrfToken, busy, error, success, onLogin, onR
       <input className="auth-tab-control" id="login-tab" name="auth-tab" type="radio" checked={mode === 'login'} onChange={() => setMode('login')}/>
       <input className="auth-tab-control" id="register-tab" name="auth-tab" type="radio" checked={mode === 'register'} onChange={() => setMode('register')}/>
 
-      <section className="auth-card" aria-label="Digital Treasury Ledger account access">
+      <section className="auth-card" aria-label="Papertrail account access">
         <aside className="auth-intro">
           <div className="brand">
-            <span className="brand-mark">DTL</span>
-            <span className="brand-name">Digital Treasury Ledger</span>
+            <img className="brand-mark" src="/papertrail-logo.png" alt="" />
+            <span className="brand-name">Papertrail</span>
           </div>
           <div className="intro-copy">
             <p className="eyebrow">Secure account access</p>
@@ -36,8 +36,8 @@ export default function AuthPage({ csrfToken, busy, error, success, onLogin, onR
 
         <div className="auth-content">
           <div className="mobile-brand">
-            <span className="brand-mark">DTL</span>
-            <span className="brand-name">Digital Treasury Ledger</span>
+            <img className="brand-mark" src="/papertrail-logo.png" alt="" />
+            <span className="brand-name">Papertrail</span>
           </div>
           <nav className="auth-tabs" aria-label="Choose an access option">
             <label htmlFor="login-tab">Log in</label>

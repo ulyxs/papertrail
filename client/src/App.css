@@ -2,6 +2,16 @@
 
 * { box-sizing: border-box; }
 
+::selection {
+  background: #cfe3f1;
+  color: #243a5e;
+}
+
+::-moz-selection {
+  background: #cfe3f1;
+  color: #243a5e;
+}
+
 html, body, #root {
   height: 100%;
   margin: 0;

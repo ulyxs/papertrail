@@ -1,14 +1,14 @@
 .component-brand-mark {
-  border: 1.5px solid var(--color-chrome-text);
-  padding: 3px 7px;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  border-radius: 7px;
 }
 
 .component-brand-title {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
 
 .component-account-summary {

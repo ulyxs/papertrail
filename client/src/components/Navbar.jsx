@@ -4,9 +4,9 @@ export default function Navbar({ account, sidebarOpen, busy, onToggleSidebar, on
         <button type="button" className="menu-btn" aria-label={sidebarOpen ? 'Close navigation menu' : 'Open navigation menu'} aria-expanded={sidebarOpen} aria-controls="main-navigation" onClick={onToggleSidebar}>
           <span aria-hidden="true">{sidebarOpen ? '×' : '☰'}</span>
         </button>
-        <div className="component-brand-mark">DTL</div>
+        <img className="component-brand-mark" src="/papertrail-logo.png" alt="" />
         <div>
-          <div className="component-brand-title">Digital Treasury Ledger</div>
+          <div className="component-brand-title">Papertrail</div>
           <div className="brand-sub">Disbursement tracking &amp; accountability</div>
         </div>
       </div>

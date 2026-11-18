@@ -106,26 +106,22 @@
 .mobile-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
 }
 
 .brand-mark {
-  display: inline-flex;
-  min-width: 58px;
-  height: 40px;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid currentColor;
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  border-radius: 8px;
 }
 
 .brand-name {
   max-width: 150px;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 700;
   line-height: 1.4;
+  letter-spacing: 0.01em;
 }
 
 .eyebrow {
@@ -263,9 +259,10 @@
 
 .form-heading h2 {
   margin: 0;
+  color: var(--midnight-blue);
   font-family: var(--serif);
   font-size: 31px;
-  font-weight: 400;
+  font-weight: 600;
   letter-spacing: -0.02em;
 }
 
