@@ -7,7 +7,7 @@ export default function Navbar({ account, sidebarOpen, busy, onToggleSidebar, on
         <img className="component-brand-mark" src="/papertrail-logo.png" alt="" />
         <div>
           <div className="component-brand-title">Papertrail</div>
-          <div className="brand-sub">Disbursement tracking &amp; accountability</div>
+          <div className="brand-sub">Ledger Tracking &amp; Management</div>
         </div>
       </div>
       <div className="header-right">

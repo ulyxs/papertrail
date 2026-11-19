@@ -27,11 +27,11 @@ export default function AuthPage({ csrfToken, busy, error, success, onLogin, onR
             <span className="brand-name">Papertrail</span>
           </div>
           <div className="intro-copy">
-            <p className="eyebrow">Secure account access</p>
+            <p className="eyebrow">Dedicated Finance Ledger for Organizations</p>
             <h1>Every peso,<br />accounted for.</h1>
             <p className="intro-description">A clear record of funds received, money released, receipts submitted, and every decision made along the way.</p>
           </div>
-          <div className="trust-note"><span className="trust-line"/><p>Built for responsible financial stewardship.</p></div>
+          <div className="trust-note"></div>
         </aside>
 
         <div className="auth-content">
