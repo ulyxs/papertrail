@@ -77,4 +77,3 @@ export default function FundsPage({ dashboard, onSubmit, busy, actor, canManage,
       <ProofModal key={proofFund?.id ?? 'closed'} transaction={proofFund} onClose={() => setProofFund(null)}/>
     </div>);
 }
-// ─── Disbursements ────────────────────────────────────────────────────────────
