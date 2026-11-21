@@ -19,8 +19,13 @@ import ArchivePage from './pages/ArchivePage';
 import PersonnelPage from './pages/PersonnelPage';
 import AuditPage from './pages/AuditPage';
 import AccountManagementPage from './pages/AccountManagementPage';
+
+function getPageFromHash() {
+    return window.location.hash.slice(2) || 'overview';
+}
+
 export default function App() {
-    const [page, setPage] = useState('overview');
+    const [page, setPage] = useState(getPageFromHash);
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [user, setUser] = useState(null);
     const [csrfToken, setCsrfToken] = useState('');
@@ -32,6 +37,11 @@ export default function App() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const initialAuthRequest = useRef(null);
+    useEffect(() => {
+        const syncPageFromHash = () => setPage(getPageFromHash());
+        window.addEventListener('hashchange', syncPageFromHash);
+        return () => window.removeEventListener('hashchange', syncPageFromHash);
+    }, []);
     useEffect(() => {
         let active = true;
         const authRequest = initialAuthRequest.current ?? loadAuthState();
@@ -89,7 +99,7 @@ export default function App() {
             }
             setCsrfToken(result.csrf_token);
             setUser(result.user);
-            setPage('overview');
+            goToPage('overview');
             setError('');
             setSuccess('');
             try {
@@ -168,7 +178,7 @@ export default function App() {
             await postAuthAction('logout', {}, csrfToken);
             setUser(null);
             setDashboard(null);
-            setPage('overview');
+            goToPage('overview');
             setSuccess('');
             setAuthError('');
             try {
@@ -197,9 +207,21 @@ export default function App() {
     const role = user?.role ?? 'User';
     const allowedPages = ROLE_PAGES[role];
     const currentPage = allowedPages.includes(page) ? page : 'overview';
+    useEffect(() => {
+        if (user && !allowedPages.includes(page)) {
+            goToPage('overview');
+        }
+    }, [user, allowedPages, page]);
+    function goToPage(nextPage) {
+        setPage(nextPage);
+        const nextHash = `#/${nextPage}`;
+        if (window.location.hash !== nextHash) {
+            window.location.hash = nextHash;
+        }
+    }
     function navigate(nextPage) {
         if (allowedPages.includes(nextPage)) {
-            setPage(nextPage);
+            goToPage(nextPage);
             setSidebarOpen(false);
             setError('');
             setSuccess('');
@@ -208,7 +230,7 @@ export default function App() {
     async function handleSessionExpired(message) {
         setUser(null);
         setDashboard(null);
-        setPage('overview');
+        goToPage('overview');
         setAuthError(message);
         try {
             const session = await loadAuthState();
