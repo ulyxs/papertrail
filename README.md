@@ -41,6 +41,8 @@ A React dashboard backed by a PHP JSON API and a MySQL/MariaDB database. It supp
 
 The Vite development server proxies `/api.php` to the PHP server. For the built site, run `npm run build` in `client`; Vite writes the site into `server/public`, alongside the API. Point Apache's document root at `server/public` to serve the built site.
 
+Dashboard pages use hash routes (for example, `/#/funds`), so reloading or using the browser's back and forward buttons keeps navigation on the selected page.
+
 Database connection settings are read from `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD`. The defaults in [`server/config/database.php`](./server/config/database.php) match a typical local XAMPP install (`root` with an empty password); change them for your environment.
 
 ## Accounts and access
