@@ -35,7 +35,7 @@ export default function LiquidationPage({ dashboard, onSubmit, busy, actor, canS
                   <DeadlineBar label={overdue ? `${Math.abs(remaining)} day(s) overdue` : `${remaining} day(s) left`} pct={Math.min(100, Math.max(0, (7 - remaining) / 7 * 100))} overdue={overdue}/>
                   {canSubmitReceipt
                     ? <button type="button" onClick={() => setReceiptTransaction(r)} disabled={busy} className="page-neutral-button page-cell-nowrap">
-                        Submit Receipt
+                        Submit heheh
                       </button>
                     : <span className="page-muted page-small">View only</span>}
                 </div>);
