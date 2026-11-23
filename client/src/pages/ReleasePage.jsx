@@ -12,7 +12,7 @@ function ProjectsManager({ projects, onSubmit, busy, actor, search, setSearch, o
     const visibleProjects = activeProjects.filter(project => project.project_name.toLocaleLowerCase().includes(normalizedSearch));
     const projectPagination = usePagination(visibleProjects, 10, normalizedSearch);
     return (<Panel>
-      <PanelHeader title="Project management" right={`${activeProjects.length} active project(s)`}/>
+      <PanelHeader title="Project Management" right={`${activeProjects.length} active project(s)`}/>
       <div className="page-project-manager-body">
         <div className="page-project-search-row">
           <label htmlFor="project-search" className="page-sr-only">Search projects</label>
@@ -228,7 +228,7 @@ export default function ReleasePage({ dashboard, onSubmit, busy, actor, }) {
         <Panel>
           <div className="page-project-vouchers-header">
             <div>
-              <div className="page-project-vouchers-title">Project disbursements</div>
+              <div className="page-project-vouchers-title">Project Disbursements</div>
               <div className="page-project-meta">{projectDisbursements.length} voucher(s) linked to this project</div>
             </div>
             <button type="button" onClick={() => setVoucherOpen(true)} disabled={busy} className="page-primary-button">
@@ -238,7 +238,7 @@ export default function ReleasePage({ dashboard, onSubmit, busy, actor, }) {
         </Panel>
 
         <Panel>
-          <PanelHeader title="Voucher history" right={`${projectDisbursements.length} record(s)`}/>
+          <PanelHeader title="Voucher History" right={`${projectDisbursements.length} record(s)`}/>
           {projectDisbursements.length === 0
                 ? <EmptyState>No disbursement vouchers have been recorded for this project.</EmptyState>
                 : <div className="page-release-table-scroll">

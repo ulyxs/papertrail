@@ -125,7 +125,7 @@ export default function ArchivePage({ dashboard }) {
             </select>
           </div>
         </div>
-        <PanelHeader title="Project folders" right={`${approved.length} approved transaction(s) · ${pending.length} pending transaction(s)`}/>
+        <PanelHeader title="Project Folders" right={`${approved.length} approved transaction(s) · ${pending.length} pending transaction(s)`}/>
         <div className="page-archive-project-grid">
           {projectEntries.length === 0 ? <EmptyState>No project transactions have been recorded.</EmptyState> : projectPagination.records.map(([name, records, pendingRecords]) => (<ProjectArchiveFolder key={name} name={name} records={records} pendingRecords={pendingRecords}/>))}
         </div>

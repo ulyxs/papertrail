@@ -25,7 +25,7 @@ export default function OverviewPage({ dashboard }) {
 
       {/* Liquidation clock */}
       <Panel>
-        <PanelHeader title="Liquidation clock" right="Seven days from release, counted from the date the cash left the ledger"/>
+        <PanelHeader title="Liquidation Clock" right="Seven days from release, counted from the date the cash left the ledger"/>
         <div className="ledger-table-scroll">
           <div className="page-overview-table page-overview-table--outstanding">
             <div className="page-overview-header">
@@ -51,7 +51,7 @@ export default function OverviewPage({ dashboard }) {
 
       {/* Waiting on auditor */}
       <Panel>
-        <PanelHeader title="Waiting on the auditor" right={`${waiting.length} transaction(s) with receipts submitted`}/>
+        <PanelHeader title="Waiting on the Auditor" right={`${waiting.length} transaction(s) with receipts submitted`}/>
         <div className="ledger-table-scroll">
           <div className="page-overview-table page-overview-table--waiting">
             <div className="page-overview-header">

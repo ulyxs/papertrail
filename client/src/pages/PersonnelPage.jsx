@@ -23,7 +23,7 @@ export default function PersonnelPage({ dashboard }) {
     return (<div>
       <PageHeader title="Personnel"/>
       <Panel>
-        <PanelHeader title="Registered personnel" right={`${personnel.length} account(s)`}/>
+        <PanelHeader title="Registered Personnel" right={`${personnel.length} account(s)`}/>
         <div className="page-personnel-note">
           A voucher is cleared once its receipt is approved by an Auditor.
         </div>

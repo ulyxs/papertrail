@@ -66,7 +66,7 @@ function handle_login(PDO $db, array $data): void
         respond(['error' => 'Your account is pending Admin approval.'], 403);
     }
     if ($account['status'] === 'disapproved') {
-        respond(['error' => 'Your account was disapproved. Contact an Admin for assistance.'], 403);
+        respond(['error' => 'Your account is disabled. Contact an Admin for assistance.'], 403);
     }
 
     if (!session_regenerate_id(true)) {

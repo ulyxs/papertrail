@@ -10,7 +10,7 @@ export default function DisbursementsPage({ dashboard }) {
     return (<div>
       <PageHeader title="Disbursements"/>
       <Panel>
-        <PanelHeader title="All transactions" right={`${disbursements.length} record(s)`}/>
+        <PanelHeader title="All Transactions" right={`${disbursements.length} record(s)`}/>
         <div className="ledger-table-scroll">
           <div className="page-disbursement-table">
             <div className="page-disbursement-header">

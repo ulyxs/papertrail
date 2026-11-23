@@ -10,7 +10,7 @@ export default function AccountManagementPage({ accounts, onSubmit, busy, curren
     const statusLabels = {
         pending: 'Pending Approval',
         approved: 'Approved',
-        disapproved: 'Disapproved',
+        disapproved: 'Disabled',
     };
     const query = search.trim().toLowerCase();
     const filteredAccounts = accounts.filter(account => (`${account.first_name} ${account.last_name} ${account.email} ${account.role} ${statusLabels[account.status] || account.status}`
@@ -20,7 +20,7 @@ export default function AccountManagementPage({ accounts, onSubmit, busy, curren
     return (<div>
       <PageHeader title="Account Management"/>
       <Panel>
-        <PanelHeader title="Registered accounts" right={`${filteredAccounts.length} of ${accounts.length} account(s)`}/>
+        <PanelHeader title="Registered Accounts" right={`${filteredAccounts.length} of ${accounts.length} account(s)`}/>
         <div className="page-search-panel">
           <label htmlFor="account-search" className="page-search-label">Search accounts</label>
           <input id="account-search" type="search" value={search} onChange={event => {
@@ -59,10 +59,10 @@ export default function AccountManagementPage({ accounts, onSubmit, busy, curren
                                 {account.status !== 'approved' && (<button type="button" disabled={busy} onClick={() => onSubmit('account', { operation: 'approve', account_id: account.id })} className="page-green-button">
                                     Approve
                                   </button>)}
-                                {account.status !== 'disapproved' && (<button type="button" disabled={busy} onClick={() => onSubmit('account', { operation: 'disapprove', account_id: account.id })} className="page-danger-button">
-                                    Disapprove
+                                {account.status !== 'disapproved' && (<button type="button" disabled={busy} onClick={() => onSubmit('account', { operation: 'disapprove', account_id: account.id })} className="page-danger-button page-account-action-button">
+                                    Disable
                                   </button>)}
-                                <button type="button" disabled={busy} onClick={() => setEditingAccount(account)} className="page-neutral-button">
+                                <button type="button" disabled={busy} onClick={() => setEditingAccount(account)} className="page-neutral-button page-account-action-button">
                                   Edit account details
                                 </button>
                               </div>}
@@ -98,7 +98,7 @@ export default function AccountManagementPage({ accounts, onSubmit, busy, curren
                 <select id={`account-${editingAccount.id}-status`} name="status" required defaultValue={editingAccount.status} className="page-select">
                   <option value="pending">Pending Approval</option>
                   <option value="approved">Approved</option>
-                  <option value="disapproved">Disapproved</option>
+                  <option value="disapproved">Disabled</option>
                 </select>
               </div>
             </div>

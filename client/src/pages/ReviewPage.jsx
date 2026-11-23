@@ -25,7 +25,7 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
     return (<div>
       <PageHeader title="Review Queue"/>
       <Panel>
-        <PanelHeader title="Pending decisions" right={`${pending.length} item(s)`}/>
+        <PanelHeader title="Pending Decisions" right={`${pending.length} item(s)`}/>
         {pending.length === 0
             ? <EmptyState>No receipts are waiting for a decision.</EmptyState>
             : <>
@@ -85,7 +85,7 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
           </>}
       </Panel>
       <Panel>
-        <PanelHeader title="Flagged transactions" right={`${flagged.length} item(s) on hold`}/>
+        <PanelHeader title="Flagged Transactions" right={`${flagged.length} item(s) on hold`}/>
         {flagged.length === 0
             ? <EmptyState>No flagged transactions need resolution.</EmptyState>
             : <>

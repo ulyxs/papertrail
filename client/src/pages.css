@@ -663,6 +663,11 @@
   flex-wrap: wrap;
 }
 
+.page-account-action-button {
+  height: 34px;
+  box-sizing: border-box;
+}
+
 .page-account-edit {
   flex-basis: 100%;
 }

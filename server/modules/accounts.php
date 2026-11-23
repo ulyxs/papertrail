@@ -55,7 +55,7 @@ function handle_account_management(PDO $db, array $data, array $account): void
     if ($wasApprovedAdmin && !$willBeApprovedAdmin) {
         $activeAdmins = (int)$db->query("SELECT COUNT(*) FROM accounts WHERE role = 'Admin' AND status = 'approved'")->fetchColumn();
         if ($activeAdmins <= 1) {
-            throw new InvalidArgumentException('The last approved Admin account cannot be demoted or disapproved.');
+            throw new InvalidArgumentException('The last approved Admin account cannot be demoted or disabled.');
         }
     }
 
@@ -83,7 +83,7 @@ function handle_account_management(PDO $db, array $data, array $account): void
         log_action($db, $user, 'Changed account role', $targetLabel . ' · ' . $target['role'] . ' → ' . $role);
     }
     if ($target['status'] !== $status) {
-        $statusAction = $status === 'approved' ? 'Approved account' : ($status === 'disapproved' ? 'Disapproved account' : 'Set account to pending');
+        $statusAction = $status === 'approved' ? 'Approved account' : ($status === 'disapproved' ? 'Disabled account' : 'Set account to pending');
         log_action($db, $user, $statusAction, $targetLabel . ' · ' . $target['status'] . ' → ' . $status);
     }
     if ($target['first_name'] !== $firstName || $target['last_name'] !== $lastName || $target['email'] !== $email) {

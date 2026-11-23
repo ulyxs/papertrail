@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PageHeader, Panel, PanelHeader, StatusDot, DeadlineBar, ApiField, ProofUpload, Modal, ProofModal, EmptyState } from '../components/ui';
+import { PageHeader, Panel, StatusDot, DeadlineBar, ApiField, ProofUpload, Modal, ProofModal, EmptyState } from '../components/ui';
 import { submitForm } from '../services/forms';
 import { money, cents, today, formatDate, daysUntil } from '../utils/formatters';
 import { usePagination } from '../hooks/usePagination';
@@ -10,13 +10,38 @@ export default function LiquidationPage({ dashboard, onSubmit, busy, actor, canS
     const waiting = disbursements.filter(record => record.status === 'for_review');
     const [proofTransaction, setProofTransaction] = useState(null);
     const [receiptTransaction, setReceiptTransaction] = useState(null);
+    const [activeTab, setActiveTab] = useState('owed');
     const owedPagination = usePagination(owed);
     const waitingPagination = usePagination(waiting);
+    function handleTabKeyDown(event) {
+        const tabs = Array.from(event.currentTarget.parentElement.querySelectorAll('[role="tab"]'));
+        const currentIndex = tabs.indexOf(event.currentTarget);
+        const nextIndex = event.key === 'Home' ? 0
+            : event.key === 'End' ? tabs.length - 1
+                : event.key === 'ArrowRight' ? (currentIndex + 1) % tabs.length
+                    : event.key === 'ArrowLeft' ? (currentIndex - 1 + tabs.length) % tabs.length
+                        : currentIndex;
+        if (nextIndex !== currentIndex) {
+            event.preventDefault();
+            tabs[nextIndex].focus();
+            tabs[nextIndex].click();
+        }
+    }
     return (<div>
       <PageHeader title="Liquidation"/>
 
       <Panel>
-        <PanelHeader title="Receipts still owed" right={`${owed.length} transaction(s)`}/>
+        <div className="page-funds-tabs" role="tablist" aria-label="Liquidation records">
+          <button id="liquidation-tab-owed" type="button" role="tab" className={`page-funds-tab${activeTab === 'owed' ? ' is-active' : ''}`} aria-selected={activeTab === 'owed'} aria-controls="liquidation-panel-owed" tabIndex={activeTab === 'owed' ? 0 : -1} onClick={() => setActiveTab('owed')} onKeyDown={handleTabKeyDown}>
+            Receipts Owed
+            <span className="page-funds-tab-count">{owed.length}</span>
+          </button>
+          <button id="liquidation-tab-waiting" type="button" role="tab" className={`page-funds-tab${activeTab === 'waiting' ? ' is-active' : ''}`} aria-selected={activeTab === 'waiting'} aria-controls="liquidation-panel-waiting" tabIndex={activeTab === 'waiting' ? 0 : -1} onClick={() => setActiveTab('waiting')} onKeyDown={handleTabKeyDown}>
+            Submitted
+            <span className="page-funds-tab-count">{waiting.length}</span>
+          </button>
+        </div>
+        <div id="liquidation-panel-owed" role="tabpanel" aria-labelledby="liquidation-tab-owed" hidden={activeTab !== 'owed'}>
         <div className="ledger-table-scroll">
           <div className="page-liquidation-table page-liquidation-table--owed">
             <div className="page-liquidation-header">
@@ -43,41 +68,9 @@ export default function LiquidationPage({ dashboard, onSubmit, busy, actor, canS
           </div>
         </div>
         <Pagination pagination={owedPagination}/>
-      </Panel>
+        </div>
 
-      {receiptTransaction && (<Modal title={`Submit receipt · ${receiptTransaction.voucher_number}`} onClose={() => setReceiptTransaction(null)} width={560}>
-          <div className="page-liquidation-summary">
-            {receiptTransaction.purpose} · {receiptTransaction.project} · {money(receiptTransaction.amount)}
-          </div>
-          <form onSubmit={async (event) => {
-                const completed = await submitForm(event, onSubmit, 'receipt', actor);
-                if (completed)
-                    setReceiptTransaction(null);
-            }}>
-            <input type="hidden" name="disbursement_id" value={receiptTransaction.id}/>
-            <ApiField label="Vendor or description" name="vendor" id="receipt-modal-vendor" placeholder="Store or recipient"/>
-            <div className="page-form-spacer"/>
-            <ApiField label="Receipt total" name="amount" id="receipt-modal-amount" type="number" min="0.01" step="0.01"/>
-            <div className="page-form-spacer"/>
-            <ApiField label="Receipt date" name="submitted_on" id="receipt-modal-date" type="date" defaultValue={today()}/>
-            <div className="page-form-spacer"/>
-            <ApiField label="Reference number" name="reference" id="receipt-modal-reference" required={false}/>
-            <div className="page-form-spacer"/>
-            <ApiField label="Note" name="note" id="receipt-modal-note" required={false}/>
-            <div className="page-form-spacer"/>
-            <ProofUpload id="receipt-modal-proof" label="Receipt proof image (optional)" accept="image/jpeg,image/png" formats="JPG, JPEG, or PNG"/>
-            <div className="page-modal-actions page-modal-actions--receipt">
-              <button type="button" onClick={() => setReceiptTransaction(null)} disabled={busy} className="page-neutral-button page-modal-button">
-                Cancel
-              </button>
-              <button type="submit" disabled={busy} className="page-primary-button page-modal-button">
-                {busy ? 'Submitting…' : 'Submit'}
-              </button>
-            </div>
-          </form>
-        </Modal>)}
-      <Panel>
-        <PanelHeader title="Submitted, waiting on a decision" right={`${waiting.length} item(s)`}/>
+        <div id="liquidation-panel-waiting" role="tabpanel" aria-labelledby="liquidation-tab-waiting" hidden={activeTab !== 'waiting'}>
         <div className="ledger-table-scroll">
           <div className="page-liquidation-table page-liquidation-table--waiting">
             <div className="page-liquidation-header">
@@ -110,7 +103,39 @@ export default function LiquidationPage({ dashboard, onSubmit, busy, actor, canS
           </div>
         </div>
         <Pagination pagination={waitingPagination}/>
+        </div>
       </Panel>
+      {receiptTransaction && (<Modal title={`Submit receipt · ${receiptTransaction.voucher_number}`} onClose={() => setReceiptTransaction(null)} width={560}>
+          <div className="page-liquidation-summary">
+            {receiptTransaction.purpose} · {receiptTransaction.project} · {money(receiptTransaction.amount)}
+          </div>
+          <form onSubmit={async (event) => {
+                const completed = await submitForm(event, onSubmit, 'receipt', actor);
+                if (completed)
+                    setReceiptTransaction(null);
+            }}>
+            <input type="hidden" name="disbursement_id" value={receiptTransaction.id}/>
+            <ApiField label="Vendor or description" name="vendor" id="receipt-modal-vendor" placeholder="Store or recipient"/>
+            <div className="page-form-spacer"/>
+            <ApiField label="Receipt total" name="amount" id="receipt-modal-amount" type="number" min="0.01" step="0.01"/>
+            <div className="page-form-spacer"/>
+            <ApiField label="Receipt date" name="submitted_on" id="receipt-modal-date" type="date" defaultValue={today()}/>
+            <div className="page-form-spacer"/>
+            <ApiField label="Reference number" name="reference" id="receipt-modal-reference" required={false}/>
+            <div className="page-form-spacer"/>
+            <ApiField label="Note" name="note" id="receipt-modal-note" required={false}/>
+            <div className="page-form-spacer"/>
+            <ProofUpload id="receipt-modal-proof" label="Receipt proof image (optional)" accept="image/jpeg,image/png" formats="JPG, JPEG, or PNG"/>
+            <div className="page-modal-actions page-modal-actions--receipt">
+              <button type="button" onClick={() => setReceiptTransaction(null)} disabled={busy} className="page-neutral-button page-modal-button">
+                Cancel
+              </button>
+              <button type="submit" disabled={busy} className="page-primary-button page-modal-button">
+                {busy ? 'Submitting…' : 'Submit'}
+              </button>
+            </div>
+          </form>
+        </Modal>)}
       <ProofModal key={proofTransaction?.id ?? 'closed'} transaction={proofTransaction} kind="receipt" onClose={() => setProofTransaction(null)}/>
     </div>);
 }
