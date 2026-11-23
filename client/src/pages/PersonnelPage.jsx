@@ -21,7 +21,7 @@ export default function PersonnelPage({ dashboard }) {
     const selectedVouchers = selectedPerson ? voucherMap.get(Number(selectedPerson.id)) || [] : [];
     const receiptPagination = usePagination(selectedVouchers, 10, selectedPerson?.id);
     return (<div>
-      <PageHeader title="Personnel" sub="Registered personnel and their voucher clearance."/>
+      <PageHeader title="Personnel"/>
       <Panel>
         <PanelHeader title="Registered personnel" right={`${personnel.length} account(s)`}/>
         <div className="page-personnel-note">

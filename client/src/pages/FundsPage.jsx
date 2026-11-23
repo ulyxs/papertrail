@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PageHeader, Panel, PanelHeader, ApiField, ProofUpload, ProofModal, EmptyState } from '../components/ui';
+import { PageHeader, Panel, ApiField, ProofUpload, ProofModal, EmptyState } from '../components/ui';
 import { submitForm } from '../services/forms';
 import { money, today, formatDate } from '../utils/formatters';
 import { usePagination } from '../hooks/usePagination';
@@ -7,6 +7,7 @@ import Pagination from '../components/Pagination';
 export default function FundsPage({ dashboard, onSubmit, busy, actor, canManage, }) {
     const { funds } = dashboard;
     const [proofFund, setProofFund] = useState(null);
+    const [activeFolder, setActiveFolder] = useState(canManage ? 'record' : 'ledger');
     const fundsPagination = usePagination(funds);
     const categories = [
         'Department Allocation',
@@ -17,11 +18,34 @@ export default function FundsPage({ dashboard, onSubmit, busy, actor, canManage,
         'Grants',
         'Others',
     ];
+    function handleTabKeyDown(event) {
+        const tabs = Array.from(event.currentTarget.parentElement.querySelectorAll('[role="tab"]'));
+        const currentIndex = tabs.indexOf(event.currentTarget);
+        const nextIndex = event.key === 'Home' ? 0
+            : event.key === 'End' ? tabs.length - 1
+                : event.key === 'ArrowRight' ? (currentIndex + 1) % tabs.length
+                    : event.key === 'ArrowLeft' ? (currentIndex - 1 + tabs.length) % tabs.length
+                        : currentIndex;
+        if (nextIndex !== currentIndex) {
+            event.preventDefault();
+            tabs[nextIndex].focus();
+            tabs[nextIndex].click();
+        }
+    }
     return (<div>
-      <PageHeader title="Funds received" sub="The opening side of the ledger. Only what is recorded here can be released."/>
+      <PageHeader title="Funds Received"/>
 
-      {canManage && <Panel>
-        <PanelHeader title="Record money coming in"/>
+      <Panel>
+        <div className={`page-funds-tabs${canManage ? '' : ' is-single'}`} role="tablist" aria-label="Funds Received">
+          {canManage && <button id="funds-tab-record" type="button" role="tab" className={`page-funds-tab${activeFolder === 'record' ? ' is-active' : ''}`} aria-selected={activeFolder === 'record'} aria-controls="funds-panel-record" tabIndex={activeFolder === 'record' ? 0 : -1} onClick={() => setActiveFolder('record')} onKeyDown={handleTabKeyDown}>
+            Record Money
+          </button>}
+          <button id="funds-tab-ledger" type="button" role="tab" className={`page-funds-tab${activeFolder === 'ledger' ? ' is-active' : ''}`} aria-selected={activeFolder === 'ledger'} aria-controls="funds-panel-ledger" tabIndex={activeFolder === 'ledger' ? 0 : -1} onClick={() => setActiveFolder('ledger')} onKeyDown={handleTabKeyDown}>
+            Receipts Ledger
+            <span className="page-funds-tab-count">{funds.length}</span>
+          </button>
+        </div>
+        {canManage && <div id="funds-panel-record" role="tabpanel" aria-labelledby="funds-tab-record" hidden={activeFolder !== 'record'}>
         <form onSubmit={event => submitForm(event, onSubmit, 'funds', actor)} className="page-funds-form">
           <div className="responsive-form-grid page-form-grid page-form-grid--two page-form-grid--income">
             <ApiField label="Source Name" name="source_name" placeholder="Member, organization, or funding office"/>
@@ -50,10 +74,10 @@ export default function FundsPage({ dashboard, onSubmit, busy, actor, canManage,
             <span className="page-form-note">This adds to cash on hand and is written to the audit trail.</span>
           </div>
         </form>
-      </Panel>}
+        </div>}
 
-      <Panel>
-        <PanelHeader title="Receipts Ledger" right={`${funds.length} record(s) · ${money(dashboard.summary.total_received)} total`}/>
+        <div id="funds-panel-ledger" role="tabpanel" aria-labelledby="funds-tab-ledger" hidden={activeFolder !== 'ledger'}>
+        <div className="page-funds-ledger-summary">{funds.length} record(s) · {money(dashboard.summary.total_received)} total</div>
         <div className="ledger-table-scroll">
           <div className="page-funds-table">
             <div className="page-funds-header">
@@ -73,6 +97,7 @@ export default function FundsPage({ dashboard, onSubmit, busy, actor, canManage,
           </div>
         </div>
         <Pagination pagination={fundsPagination}/>
+        </div>
       </Panel>
       <ProofModal key={proofFund?.id ?? 'closed'} transaction={proofFund} onClose={() => setProofFund(null)}/>
     </div>);

@@ -262,7 +262,7 @@ export default function ReleasePage({ dashboard, onSubmit, busy, actor, }) {
       </div>);
     }
     return (<div>
-      <PageHeader title="Release funds" sub="Choose a project to view its vouchers or create a new disbursement."/>
+      <PageHeader title="Release Funds"/>
       <ProjectsManager projects={projects} onSubmit={onSubmit} busy={busy} actor={actor} search={search} setSearch={setSearch} onSelect={setSelectedProjectId} onOpenArchive={() => setArchiveOpen(true)}/>
       {archiveOpen && <ArchivedProjectsModal projects={projects} onSubmit={onSubmit} busy={busy} actor={actor} onClose={() => setArchiveOpen(false)}/>}
     </div>);

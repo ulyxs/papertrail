@@ -102,7 +102,7 @@ export default function ArchivePage({ dashboard }) {
         `${projectSearch}|${semester}|${month}`,
     );
     return (<div>
-      <PageHeader title="Financial reports" sub="Project transaction summaries, including records that are still awaiting completion or approval."/>
+      <PageHeader title="Financial Reports"/>
       <Panel>
         <div className="page-archive-filters">
           <div>

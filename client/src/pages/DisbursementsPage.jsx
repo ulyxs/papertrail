@@ -8,7 +8,7 @@ export default function DisbursementsPage({ dashboard }) {
     const [proofTransaction, setProofTransaction] = useState(null);
     const disbursementPagination = usePagination(disbursements);
     return (<div>
-      <PageHeader title="Disbursements" sub="Every release, who is accountable for it, and where it sits in the chain."/>
+      <PageHeader title="Disbursements"/>
       <Panel>
         <PanelHeader title="All transactions" right={`${disbursements.length} record(s)`}/>
         <div className="ledger-table-scroll">

@@ -8,7 +8,7 @@ export default function OverviewPage({ dashboard }) {
     const outstanding = disbursements.filter(record => record.status === 'awaiting_receipt');
     const waitingPagination = usePagination(waiting);
     return (<div>
-      <PageHeader title="Where the money stands today" sub="Every peso released is tied to a person and a seven-day clock. Nothing closes until a receipt is in, reviewed, and filed under its project."/>
+      <PageHeader title="Overview" sub="Every peso released is tied to a person and a seven-day clock. Nothing closes until a receipt is in, reviewed, and filed under its project."/>
 
       {/* Stat cards */}
       <div className="stat-grid">

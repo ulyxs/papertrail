@@ -9,7 +9,7 @@ export default function AuditPage({ dashboard }) {
     const filteredAudit = audit.filter(entry => (`${entry.actor} ${entry.action} ${entry.detail} ${entry.created_at}`.toLocaleLowerCase().includes(query)));
     const auditPagination = usePagination(filteredAudit, 10, query);
     return (<div>
-      <PageHeader title="Activity & Audit Log" sub="Append-only records of financial decisions and account administration activity."/>
+      <PageHeader title="Activity & Audit Log"/>
       <Panel>
         <PanelHeader title="Activity" right={`${filteredAudit.length} of ${audit.length} entries`}/>
         <div className="page-search-panel">

@@ -18,7 +18,7 @@ export default function AccountManagementPage({ accounts, onSubmit, busy, curren
         .includes(query)));
     const accountPagination = usePagination(filteredAccounts, 10, query);
     return (<div>
-      <PageHeader title="Account Management" sub="Review registrations, assign one of the approved system roles, and manage account status."/>
+      <PageHeader title="Account Management"/>
       <Panel>
         <PanelHeader title="Registered accounts" right={`${filteredAccounts.length} of ${accounts.length} account(s)`}/>
         <div className="page-search-panel">

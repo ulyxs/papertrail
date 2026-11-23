@@ -13,7 +13,7 @@ export default function LiquidationPage({ dashboard, onSubmit, busy, actor, canS
     const owedPagination = usePagination(owed);
     const waitingPagination = usePagination(waiting);
     return (<div>
-      <PageHeader title="Liquidation" sub="Record the receipt details against the voucher. A transaction is not closed until the auditor reviews it."/>
+      <PageHeader title="Liquidation"/>
 
       <Panel>
         <PanelHeader title="Receipts still owed" right={`${owed.length} transaction(s)`}/>

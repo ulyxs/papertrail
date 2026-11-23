@@ -23,7 +23,7 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
       </div>);
     }
     return (<div>
-      <PageHeader title="Review queue" sub="Transactions with receipts submitted and waiting on an auditor's decision."/>
+      <PageHeader title="Review Queue"/>
       <Panel>
         <PanelHeader title="Pending decisions" right={`${pending.length} item(s)`}/>
         {pending.length === 0
