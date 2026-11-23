@@ -16,31 +16,22 @@ function handle_release(PDO $db, array $data, array $account): void
     }
     $amount = valid_amount($data, 'amount');
     $releasedOn = valid_date($data, 'released_on');
-    $semester = trim((string)($data['semester'] ?? ''));
-    if (!in_array($semester, ['First Semester', 'Second Semester', 'Summer'], true)) {
-        throw new InvalidArgumentException('Select a valid semester.');
-    }
-    $month = filter_var($data['month'] ?? null, FILTER_VALIDATE_INT);
-    if ($month === false || $month < 1 || $month > 12) {
-        throw new InvalidArgumentException('Select a valid month.');
-    }
-    $monthSemester = $month >= 8 ? 'First Semester'
-        : ($month <= 5 ? 'Second Semester' : 'Summer');
-    if ($semester !== $monthSemester) {
-        throw new InvalidArgumentException('The selected month does not belong to the selected semester.');
-    }
-    $releasedMonth = (int)date('n', strtotime($releasedOn));
-    if ($releasedMonth !== $month) {
-        throw new InvalidArgumentException('The selected month must match the release date.');
-    }
 
     $db->beginTransaction();
     $db->query('SELECT id FROM app_lock WHERE id = 1 FOR UPDATE');
-    $projectQuery = $db->prepare('SELECT project_name, status FROM projects WHERE id = ? FOR UPDATE');
+    $projectQuery = $db->prepare('SELECT project_name, status, semester, month FROM projects WHERE id = ? FOR UPDATE');
     $projectQuery->execute([$projectId]);
     $project = $projectQuery->fetch();
     if (!$project || $project['status'] !== 'active') {
         throw new InvalidArgumentException('Select a project that is currently active.');
+    }
+    if (!$project['semester'] || !$project['month']) {
+        $month = (int)date('n', strtotime($releasedOn));
+        $semester = $month >= 8 ? 'First Semester'
+            : ($month <= 5 ? 'Second Semester' : 'Summer');
+    } else {
+        $semester = $project['semester'];
+        $month = (int)$project['month'];
     }
 
     $person = $db->prepare(

@@ -61,6 +61,8 @@ CREATE TABLE IF NOT EXISTS projects (
   project_name VARCHAR(180) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   start_date DATE NULL,
   end_date DATE NULL,
+  semester ENUM('First Semester', 'Second Semester', 'Summer') NULL,
+  month TINYINT UNSIGNED NULL,
   status ENUM('active', 'archived') NOT NULL DEFAULT 'active',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY projects_name_unique (project_name),

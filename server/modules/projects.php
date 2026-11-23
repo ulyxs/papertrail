@@ -23,6 +23,19 @@ function handle_project(PDO $db, array $data, array $account): void
         $projectName = required_string($data, 'project_name', 180);
         $startDate = valid_date($data, 'start_date');
         $endDate = valid_date($data, 'end_date');
+        $semester = trim((string)($data['semester'] ?? ''));
+        if (!in_array($semester, ['First Semester', 'Second Semester', 'Summer'], true)) {
+            throw new InvalidArgumentException('Select a valid semester.');
+        }
+        $month = filter_var($data['month'] ?? null, FILTER_VALIDATE_INT);
+        if ($month === false || $month < 1 || $month > 12) {
+            throw new InvalidArgumentException('Select a valid month.');
+        }
+        $monthSemester = $month >= 8 ? 'First Semester'
+            : ($month <= 5 ? 'Second Semester' : 'Summer');
+        if ($semester !== $monthSemester) {
+            throw new InvalidArgumentException('The selected month does not belong to the selected semester.');
+        }
         if ($startDate > $endDate) {
             throw new InvalidArgumentException('Project end date must be on or after the start date.');
         }
@@ -45,13 +58,13 @@ function handle_project(PDO $db, array $data, array $account): void
         }
 
         if ($operation === 'create') {
-            $insert = $db->prepare('INSERT INTO projects (project_name, start_date, end_date) VALUES (?, ?, ?)');
-            $insert->execute([$projectName, $startDate, $endDate]);
+            $insert = $db->prepare('INSERT INTO projects (project_name, start_date, end_date, semester, month) VALUES (?, ?, ?, ?, ?)');
+            $insert->execute([$projectName, $startDate, $endDate, $semester, $month]);
             $projectId = (int)$db->lastInsertId();
             $logDetail = 'Created project ' . $projectName;
         } else {
-            $update = $db->prepare('UPDATE projects SET project_name = ?, start_date = ?, end_date = ? WHERE id = ?');
-            $update->execute([$projectName, $startDate, $endDate, $projectId]);
+            $update = $db->prepare('UPDATE projects SET project_name = ?, start_date = ?, end_date = ?, semester = ?, month = ? WHERE id = ?');
+            $update->execute([$projectName, $startDate, $endDate, $semester, $month, $projectId]);
             $logDetail = 'Updated project ' . $projectName;
         }
         log_action($db, $user, $operation === 'create' ? 'Created a project' : 'Updated a project', $logDetail);

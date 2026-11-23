@@ -17,6 +17,17 @@ function database_connection(): PDO
         PDO::ATTR_EMULATE_PREPARES => false,
     ]);
 
+    $projectColumns = $db->query("SHOW COLUMNS FROM projects")->fetchAll();
+    $projectColumnNames = array_column($projectColumns, 'Field');
+    if (!in_array('semester', $projectColumnNames, true)) {
+        $db->exec("ALTER TABLE projects
+            ADD COLUMN semester ENUM('First Semester', 'Second Semester', 'Summer') NULL AFTER end_date");
+    }
+    if (!in_array('month', $projectColumnNames, true)) {
+        $db->exec("ALTER TABLE projects
+            ADD COLUMN month TINYINT UNSIGNED NULL AFTER semester");
+    }
+
     $columns = $db->query("SHOW COLUMNS FROM disbursements")->fetchAll();
     $columnNames = array_column($columns, 'Field');
     $needsUpgrade = false;

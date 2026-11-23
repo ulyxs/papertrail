@@ -29,7 +29,7 @@ function load_dashboard(PDO $db, array $account): array
          ORDER BY d.released_on DESC, d.id DESC"
     )->fetchAll();
     $projects = $canManageFunds ? $db->query(
-        "SELECT pr.id, pr.project_name, pr.start_date, pr.end_date, pr.status,
+        "SELECT pr.id, pr.project_name, pr.start_date, pr.end_date, pr.semester, pr.month, pr.status,
                 (SELECT COUNT(*) FROM disbursements d WHERE d.project_id = pr.id) AS linked_transactions
          FROM projects pr
          ORDER BY pr.status, pr.project_name"
