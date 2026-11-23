@@ -8,6 +8,7 @@ A React dashboard backed by a PHP JSON API and a MySQL/MariaDB database. It supp
    - For a **fresh install**, import [`server/schema.sql`](./server/schema.sql). Do not run the migrations on this new schema.
    - To **upgrade an existing install**, do not re-import the schema. Migration scripts are not included in this checkout, so preserve your existing database and prepare a reviewed migration before upgrading it.
    - The initial schema contains no sample accounts or voucher recipients. Approved accounts automatically appear as voucher recipients; project and transaction tables start empty.
+   - Existing databases are upgraded automatically on API startup: disbursement records receive their semester and month values from the release date.
 3. **Provision the first Admin** from the repository root after the schema or migrations are installed. Run this only in a trusted terminal; password input is visible:
 
    ```powershell

@@ -56,8 +56,32 @@ function ProjectArchiveFolder({ name, records, pendingRecords }) {
     </div>);
 }
 export default function ArchivePage({ dashboard }) {
-    const approved = dashboard.disbursements.filter(record => record.status === 'approved');
-    const pending = dashboard.disbursements.filter(record => record.status !== 'approved');
+    const now = new Date();
+    const currentMonth = now.getMonth() + 1;
+    const currentSemester = currentMonth >= 8
+        ? 'First Semester'
+        : (currentMonth <= 5 ? 'Second Semester' : 'Summer');
+    const [projectSearch, setProjectSearch] = useState('');
+    const [semester, setSemester] = useState(currentSemester);
+    const [month, setMonth] = useState(String(currentMonth));
+    const months = [
+        ['', 'All months'], ['1', 'January'], ['2', 'February'], ['3', 'March'], ['4', 'April'], ['5', 'May'],
+        ['6', 'June'], ['7', 'July'], ['8', 'August'], ['9', 'September'], ['10', 'October'],
+        ['11', 'November'], ['12', 'December'],
+    ];
+    const normalizedSearch = projectSearch.trim().toLocaleLowerCase();
+    const filteredDisbursements = dashboard.disbursements.filter(record => {
+        const recordProject = (record.project || '').toLocaleLowerCase();
+        const recordSemester = record.semester || (Number(record.released_on?.slice(5, 7)) >= 8
+            ? 'First Semester'
+            : (Number(record.released_on?.slice(5, 7)) <= 5 ? 'Second Semester' : 'Summer'));
+        const recordMonth = String(record.month || Number(record.released_on?.slice(5, 7)));
+        return recordProject.includes(normalizedSearch)
+            && (!semester || semester === 'All' || recordSemester === semester)
+            && (!month || recordMonth === month);
+    });
+    const approved = filteredDisbursements.filter(record => record.status === 'approved');
+    const pending = filteredDisbursements.filter(record => record.status !== 'approved');
     const approvedProjects = approved.reduce((groups, record) => {
         groups[record.project] = [...(groups[record.project] || []), record];
         return groups;
@@ -72,10 +96,35 @@ export default function ArchivePage({ dashboard }) {
         approvedProjects[name] || [],
         pendingProjects[name] || [],
     ]);
-    const projectPagination = usePagination(projectEntries);
+    const projectPagination = usePagination(
+        projectEntries,
+        10,
+        `${projectSearch}|${semester}|${month}`,
+    );
     return (<div>
       <PageHeader title="Financial reports" sub="Project transaction summaries, including records that are still awaiting completion or approval."/>
       <Panel>
+        <div className="page-archive-filters">
+          <div>
+            <label htmlFor="report-project-search" className="page-field-label">Project</label>
+            <input id="report-project-search" type="search" value={projectSearch} onChange={event => setProjectSearch(event.target.value)} placeholder="Search projects…" className="page-search-input"/>
+          </div>
+          <div>
+            <label htmlFor="report-semester" className="page-field-label">Semester</label>
+            <select id="report-semester" value={semester} onChange={event => setSemester(event.target.value)} className="page-select">
+              <option value="All">All semesters</option>
+              <option value="First Semester">First Semester (August-December)</option>
+              <option value="Second Semester">Second Semester (January-May)</option>
+              <option value="Summer">Summer (June-July)</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="report-month" className="page-field-label">Month</label>
+            <select id="report-month" value={month} onChange={event => setMonth(event.target.value)} className="page-select">
+              {months.map(([value, label]) => <option key={value || 'all'} value={value}>{label}</option>)}
+            </select>
+          </div>
+        </div>
         <PanelHeader title="Project folders" right={`${approved.length} approved transaction(s) · ${pending.length} pending transaction(s)`}/>
         <div className="page-archive-project-grid">
           {projectEntries.length === 0 ? <EmptyState>No project transactions have been recorded.</EmptyState> : projectPagination.records.map(([name, records, pendingRecords]) => (<ProjectArchiveFolder key={name} name={name} records={records} pendingRecords={pendingRecords}/>))}

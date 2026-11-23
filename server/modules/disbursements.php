@@ -16,6 +16,23 @@ function handle_release(PDO $db, array $data, array $account): void
     }
     $amount = valid_amount($data, 'amount');
     $releasedOn = valid_date($data, 'released_on');
+    $semester = trim((string)($data['semester'] ?? ''));
+    if (!in_array($semester, ['First Semester', 'Second Semester', 'Summer'], true)) {
+        throw new InvalidArgumentException('Select a valid semester.');
+    }
+    $month = filter_var($data['month'] ?? null, FILTER_VALIDATE_INT);
+    if ($month === false || $month < 1 || $month > 12) {
+        throw new InvalidArgumentException('Select a valid month.');
+    }
+    $monthSemester = $month >= 8 ? 'First Semester'
+        : ($month <= 5 ? 'Second Semester' : 'Summer');
+    if ($semester !== $monthSemester) {
+        throw new InvalidArgumentException('The selected month does not belong to the selected semester.');
+    }
+    $releasedMonth = (int)date('n', strtotime($releasedOn));
+    if ($releasedMonth !== $month) {
+        throw new InvalidArgumentException('The selected month must match the release date.');
+    }
 
     $db->beginTransaction();
     $db->query('SELECT id FROM app_lock WHERE id = 1 FOR UPDATE');
@@ -65,10 +82,10 @@ function handle_release(PDO $db, array $data, array $account): void
     $voucher = 'DV-' . date('Y', strtotime($releasedOn)) . '-' . str_pad((string)$nextNumber, 3, '0', STR_PAD_LEFT);
     $insert = $db->prepare(
         "INSERT INTO disbursements
-            (voucher_number, purpose, person_id, project_id, amount, released_on)
-         VALUES (?, ?, ?, ?, ?, ?)"
+            (voucher_number, purpose, person_id, project_id, amount, released_on, semester, month)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
     );
-    $insert->execute([$voucher, $purpose, $personId, $projectId, $amount, $releasedOn]);
+    $insert->execute([$voucher, $purpose, $personId, $projectId, $amount, $releasedOn, $semester, $month]);
     log_action($db, $user, 'Released funds', $voucher . ' · ' . $project['project_name'] . ' · ₱' . $amount . ' to ' . $person['name']);
     $db->commit();
     respond(['ok' => true, 'voucher_number' => $voucher], 201);

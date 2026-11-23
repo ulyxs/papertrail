@@ -134,6 +134,18 @@ function ArchivedProjectsModal({ projects, onSubmit, busy, actor, onClose, }) {
     </Modal>);
 }
 function NewVoucherModal({ project, people, summary, onSubmit, busy, actor, onClose, }) {
+    const initialDate = today();
+    const initialMonth = Number(initialDate.slice(5, 7));
+    const initialSemester = initialMonth >= 8
+        ? 'First Semester'
+        : (initialMonth <= 5 ? 'Second Semester' : 'Summer');
+    const [semester, setSemester] = useState(initialSemester);
+    const [month, setMonth] = useState(String(initialMonth));
+    const months = [
+        [1, 'January'], [2, 'February'], [3, 'March'], [4, 'April'], [5, 'May'],
+        [6, 'June'], [7, 'July'], [8, 'August'], [9, 'September'], [10, 'October'],
+        [11, 'November'], [12, 'December'],
+    ];
     async function handleSubmit(event) {
         const completed = await submitForm(event, onSubmit, 'release', actor);
         if (completed)
@@ -158,7 +170,33 @@ function NewVoucherModal({ project, people, summary, onSubmit, busy, actor, onCl
           <ApiField label="Amount to release" name="amount" placeholder="0.00" type="number" min="0.01" step="0.01" hint={`Cash on hand: ${money(summary.cash_on_hand)}`}/>
         </div>
         <div className="page-form-section">
-          <ApiField label="Date released" name="released_on" type="date" defaultValue={today()} hint="Receipts are due seven days after release."/>
+          <div className="responsive-form-grid page-form-grid page-form-grid--three">
+            <div>
+              <label htmlFor="voucher-released-on" className="page-field-label">Date released</label>
+              <input id="voucher-released-on" name="released_on" type="date" required defaultValue={initialDate} onChange={event => {
+                const dateMonth = Number(event.target.value.slice(5, 7));
+                if (dateMonth >= 1 && dateMonth <= 12) {
+                  setMonth(String(dateMonth));
+                  setSemester(dateMonth >= 8 ? 'First Semester' : (dateMonth <= 5 ? 'Second Semester' : 'Summer'));
+                }
+              }} className="page-search-input"/>
+              <p className="component-field-hint">Receipts are due seven days after release.</p>
+            </div>
+            <div>
+              <label htmlFor="voucher-semester" className="page-field-label">Semester</label>
+              <select id="voucher-semester" name="semester" required value={semester} onChange={event => setSemester(event.target.value)} className="page-select">
+                <option value="First Semester">First Semester: August–December</option>
+                <option value="Second Semester">Second Semester: January–May</option>
+                <option value="Summer">Summer: June–July</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="voucher-month" className="page-field-label">Month</label>
+              <select id="voucher-month" name="month" required value={month} onChange={event => setMonth(event.target.value)} className="page-select">
+                {months.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+              </select>
+            </div>
+          </div>
         </div>
         <div className="page-modal-actions">
           <button type="button" onClick={onClose} disabled={busy} className="page-neutral-button page-modal-button">Cancel</button>
