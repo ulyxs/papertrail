@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PageHeader, Panel, PanelHeader, Modal, ProofModal, EmptyState } from '../components/ui';
+import { PageHeader, Panel, Modal, ProofModal, EmptyState } from '../components/ui';
 import { submitForm } from '../services/forms';
 import { money, cents, formatDate } from '../utils/formatters';
 import { usePagination } from '../hooks/usePagination';
@@ -10,8 +10,23 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
     const flagged = dashboard.disbursements.filter(record => record.status === 'flagged');
     const [proofTransaction, setProofTransaction] = useState(null);
     const [resolutionTransaction, setResolutionTransaction] = useState(null);
+    const [activeTab, setActiveTab] = useState('pending');
     const pendingPagination = usePagination(pending);
     const flaggedPagination = usePagination(flagged);
+    function handleTabKeyDown(event) {
+        const tabs = Array.from(event.currentTarget.parentElement.querySelectorAll('[role="tab"]'));
+        const currentIndex = tabs.indexOf(event.currentTarget);
+        const nextIndex = event.key === 'Home' ? 0
+            : event.key === 'End' ? tabs.length - 1
+                : event.key === 'ArrowRight' ? (currentIndex + 1) % tabs.length
+                    : event.key === 'ArrowLeft' ? (currentIndex - 1 + tabs.length) % tabs.length
+                        : currentIndex;
+        if (nextIndex !== currentIndex) {
+            event.preventDefault();
+            tabs[nextIndex].focus();
+            tabs[nextIndex].click();
+        }
+    }
     function ReceiptProofButton({ record }) {
         return (<div>
         <button type="button" onClick={() => setProofTransaction(record)} className="page-proof-button page-cell-nowrap">
@@ -25,7 +40,17 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
     return (<div>
       <PageHeader title="Review Queue"/>
       <Panel>
-        <PanelHeader title="Pending Decisions" right={`${pending.length} item(s)`}/>
+        <div className="page-funds-tabs" role="tablist" aria-label="Review queue">
+          <button id="review-tab-pending" type="button" role="tab" className={`page-funds-tab${activeTab === 'pending' ? ' is-active' : ''}`} aria-selected={activeTab === 'pending'} aria-controls="review-panel-pending" tabIndex={activeTab === 'pending' ? 0 : -1} onClick={() => setActiveTab('pending')} onKeyDown={handleTabKeyDown}>
+            Pending Decisions
+            <span className="page-funds-tab-count">{pending.length}</span>
+          </button>
+          <button id="review-tab-flagged" type="button" role="tab" className={`page-funds-tab${activeTab === 'flagged' ? ' is-active' : ''}`} aria-selected={activeTab === 'flagged'} aria-controls="review-panel-flagged" tabIndex={activeTab === 'flagged' ? 0 : -1} onClick={() => setActiveTab('flagged')} onKeyDown={handleTabKeyDown}>
+            Flagged Transactions
+            <span className="page-funds-tab-count">{flagged.length}</span>
+          </button>
+        </div>
+        <div id="review-panel-pending" role="tabpanel" aria-labelledby="review-tab-pending" hidden={activeTab !== 'pending'}>
         {pending.length === 0
             ? <EmptyState>No receipts are waiting for a decision.</EmptyState>
             : <>
@@ -83,9 +108,8 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
             </TableContainer>
             <Pagination pagination={pendingPagination}/>
           </>}
-      </Panel>
-      <Panel>
-        <PanelHeader title="Flagged Transactions" right={`${flagged.length} item(s) on hold`}/>
+        </div>
+        <div id="review-panel-flagged" role="tabpanel" aria-labelledby="review-tab-flagged" hidden={activeTab !== 'flagged'}>
         {flagged.length === 0
             ? <EmptyState>No flagged transactions need resolution.</EmptyState>
             : <>
@@ -131,6 +155,7 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
             </TableContainer>
             <Pagination pagination={flaggedPagination}/>
           </>}
+        </div>
       </Panel>
       {resolutionTransaction && (<Modal title={`Resolve discrepancy · ${resolutionTransaction.voucher_number}`} onClose={() => setResolutionTransaction(null)} width={560}>
           <div className="page-review-summary">
