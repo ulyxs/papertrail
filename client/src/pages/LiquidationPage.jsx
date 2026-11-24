@@ -90,7 +90,7 @@ export default function LiquidationPage({ dashboard, onSubmit, busy, actor, canS
                   <span className={`page-liquidation-difference${differenceCents ? ' overdue' : ''}`}>{differenceCents === 0 ? 'Exact' : money(differenceCents / 100)}</span>
                   <div>
                     <button type="button" onClick={() => setProofTransaction(r)} className="page-proof-button page-cell-nowrap">View Proof</button>
-                    <div className="page-proof-note">{Number(r.has_receipt_proof) === 1 ? (r.receipt_proof_name || 'Image uploaded') : 'No proof uploaded'}</div>
+                    <div className="page-proof-note page-proof-filename" title={Number(r.has_receipt_proof) === 1 ? (r.receipt_proof_name || 'Image uploaded') : undefined}>{Number(r.has_receipt_proof) === 1 ? (r.receipt_proof_name || 'Image uploaded') : 'No proof uploaded'}</div>
                   </div>
                   <div>
                     <div className="page-status-inline">

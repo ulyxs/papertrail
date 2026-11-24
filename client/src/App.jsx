@@ -16,7 +16,6 @@ import ReleasePage from './pages/ReleasePage';
 import LiquidationPage from './pages/LiquidationPage';
 import ReviewPage from './pages/ReviewPage';
 import ArchivePage from './pages/ArchivePage';
-import PersonnelPage from './pages/PersonnelPage';
 import AuditPage from './pages/AuditPage';
 import AccountManagementPage from './pages/AccountManagementPage';
 
@@ -313,7 +312,6 @@ export default function App() {
             liquidation: <LiquidationPage dashboard={dashboard} onSubmit={handleSubmit} busy={busy} actor={`${user.first_name} ${user.last_name}`} canSubmitReceipt={['Treasurer', 'Admin'].includes(role)}/>,
             review: <ReviewPage dashboard={dashboard} onSubmit={handleReview} busy={busy} actor={`${user.first_name} ${user.last_name}`}/>,
             archive: <ArchivePage dashboard={dashboard}/>,
-            personnel: <PersonnelPage dashboard={dashboard}/>,
             audit: <AuditPage dashboard={dashboard}/>,
             accounts: <AccountManagementPage accounts={dashboard.accounts} onSubmit={handleSubmit} busy={busy} currentUser={user}/>,
         }[currentPage];

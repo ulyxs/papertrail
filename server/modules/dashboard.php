@@ -51,10 +51,6 @@ function load_dashboard(PDO $db, array $account): array
          WHERE p.status = 'active' AND a.status = 'approved'
          ORDER BY a.last_name, a.first_name, a.email"
     )->fetchAll() : [];
-    $personnel = $canManageFunds ? $db->query(
-        'SELECT id, first_name, last_name, email, role, status, created_at
-         FROM accounts ORDER BY last_name, first_name, email'
-    )->fetchAll() : [];
     $audit = $canAudit ? load_audit_entries($db) : [];
     $accounts = $role === 'Admin' ? $db->query(
         'SELECT id, first_name, last_name, email, role, status, created_at
@@ -85,7 +81,6 @@ function load_dashboard(PDO $db, array $account): array
         'disbursements' => $disbursements,
         'projects' => $projects,
         'people' => $people,
-        'personnel' => $personnel,
         'audit' => $audit,
         'accounts' => $accounts,
         'summary' => [

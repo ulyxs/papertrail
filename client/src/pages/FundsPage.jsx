@@ -91,7 +91,7 @@ export default function FundsPage({ dashboard, onSubmit, busy, actor, canManage,
                 <span className="page-medium">{money(r.amount)}</span>
                 <div>
                   <button type="button" onClick={() => setProofFund(r)} className="page-proof-button page-cell-nowrap">View Proof</button>
-                  <div className="page-proof-note">{Number(r.has_proof) === 1 ? (r.proof_name || 'Image uploaded') : 'No proof uploaded'}</div>
+                  <div className="page-proof-note page-proof-filename" title={Number(r.has_proof) === 1 ? (r.proof_name || 'Image uploaded') : undefined}>{Number(r.has_proof) === 1 ? (r.proof_name || 'Image uploaded') : 'No proof uploaded'}</div>
                 </div>
               </div>))}
           </div>

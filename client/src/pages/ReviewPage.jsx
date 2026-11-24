@@ -32,7 +32,7 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
         <button type="button" onClick={() => setProofTransaction(record)} className="page-proof-button page-cell-nowrap">
           View Receipt
         </button>
-        <div className="page-proof-note">
+        <div className="page-proof-note page-proof-filename" title={Number(record.has_receipt_proof) === 1 ? (record.receipt_proof_name || 'Image uploaded') : undefined}>
           {Number(record.has_receipt_proof) === 1 ? (record.receipt_proof_name || 'Image uploaded') : 'No proof uploaded'}
         </div>
       </div>);
@@ -55,7 +55,7 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
             ? <EmptyState>No receipts are waiting for a decision.</EmptyState>
             : <>
             <TableContainer>
-              <table className="page-table page-review-table">
+              <table className="page-table page-review-table page-review-table--responsive page-review-table--pending">
                 <colgroup>
                   <col className="page-review-col-voucher"/>
                   <col className="page-review-col-accountable"/>
@@ -67,7 +67,7 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
                   <col className="page-review-col-actions"/>
                 </colgroup>
                 <thead>
-                  <tr>{['Voucher', 'Accountable person', 'Receipt details', 'Released', 'Receipted', 'Difference', 'Proof', 'Actions'].map(label => <th key={label} scope="col">{label}</th>)}</tr>
+                  <tr>{['Voucher', 'Accountable', 'Receipt details', 'Released', 'Receipted', 'Difference', 'Proof', 'Actions'].map(label => <th key={label} scope="col" className={['Released', 'Receipted', 'Difference'].includes(label) ? 'page-review-money-column' : undefined}>{label}</th>)}</tr>
                 </thead>
                 <tbody>
                   {pendingPagination.records.map(record => {
@@ -85,18 +85,18 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
                           <div className="page-review-project">Submitted {formatDate(record.receipt_submitted_on)}</div>
                           {record.receipt_note && <div className="page-review-note">{record.receipt_note}</div>}
                         </td>
-                        <td>{money(record.amount)}</td>
-                        <td>{money(record.receipt_amount)}</td>
-                        <td className={`page-review-difference${differenceCents ? ' overdue' : ''}`}>
+                        <td className="page-review-money-column">{money(record.amount)}</td>
+                        <td className="page-review-money-column">{money(record.receipt_amount)}</td>
+                        <td className={`page-review-money-column page-review-difference${differenceCents ? ' overdue' : ''}`}>
                           {differenceCents === 0 ? 'Exact' : money(differenceCents / 100)}
                         </td>
                         <td><ReceiptProofButton record={record}/></td>
                         <td>
                           <div className="page-review-actions">
-                            <button type="button" disabled={busy || differenceCents !== 0} onClick={() => onSubmit('review', { disbursement_id: record.id, decision: 'approve', actor })} className={`page-review-approve${differenceCents !== 0 ? ' has-difference' : ''}`}>
+                            <button type="button" disabled={busy || differenceCents !== 0} onClick={() => onSubmit('review', { disbursement_id: record.id, decision: 'approve', actor })} className={`page-primary-button page-review-approve${differenceCents !== 0 ? ' has-difference' : ''}`}>
                               Approve
                             </button>
-                            <button type="button" disabled={busy} onClick={() => onSubmit('review', { disbursement_id: record.id, decision: 'flag', actor })} className="page-review-flag">
+                            <button type="button" disabled={busy} onClick={() => onSubmit('review', { disbursement_id: record.id, decision: 'flag', actor })} className="page-danger-button page-review-flag">
                               Flag
                             </button>
                           </div>
@@ -114,7 +114,7 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
             ? <EmptyState>No flagged transactions need resolution.</EmptyState>
             : <>
             <TableContainer>
-              <table className="page-table page-review-table">
+              <table className="page-table page-review-table page-review-table--responsive page-review-table--flagged">
                 <colgroup>
                   <col className="page-review-col-voucher"/>
                   <col className="page-review-col-accountable"/>
@@ -125,7 +125,7 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
                   <col className="page-review-col-resolution"/>
                 </colgroup>
                 <thead>
-                  <tr>{['Voucher', 'Accountable person', 'Receipt details', 'Released', 'Receipted', 'Proof', 'Resolution'].map(label => <th key={label} scope="col">{label}</th>)}</tr>
+                  <tr>{['Voucher', 'Accountable', 'Receipt details', 'Released', 'Receipted', 'Proof', 'Resolution'].map(label => <th key={label} scope="col" className={['Released', 'Receipted'].includes(label) ? 'page-review-money-column' : undefined}>{label}</th>)}</tr>
                 </thead>
                 <tbody>
                   {flaggedPagination.records.map(record => (<tr key={record.id}>
@@ -141,8 +141,8 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
                         <div className="page-review-project">Submitted {formatDate(record.receipt_submitted_on)}</div>
                         <div className="page-review-note">{record.receipt_note}</div>
                       </td>
-                      <td>{money(record.amount)}</td>
-                      <td>{money(record.receipt_amount)}</td>
+                      <td className="page-review-money-column">{money(record.amount)}</td>
+                      <td className="page-review-money-column">{money(record.receipt_amount)}</td>
                       <td><ReceiptProofButton record={record}/></td>
                       <td>
                         <button type="button" disabled={busy} onClick={() => setResolutionTransaction(record)} className="page-primary-button page-cell-nowrap">

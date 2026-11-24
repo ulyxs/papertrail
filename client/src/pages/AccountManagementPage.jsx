@@ -62,8 +62,8 @@ export default function AccountManagementPage({ accounts, onSubmit, busy, curren
                                 {account.status !== 'disapproved' && (<button type="button" disabled={busy} onClick={() => onSubmit('account', { operation: 'disapprove', account_id: account.id })} className="page-danger-button page-account-action-button">
                                     Disable
                                   </button>)}
-                                <button type="button" disabled={busy} onClick={() => setEditingAccount(account)} className="page-neutral-button page-account-action-button">
-                                  Edit account details
+                                <button type="button" disabled={busy} onClick={() => setEditingAccount(account)} className="page-neutral-button page-account-action-button" title="Edit account details" aria-label="Edit account details">
+                                  Edit
                                 </button>
                               </div>}
                         </td>

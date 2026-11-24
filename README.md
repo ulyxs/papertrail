@@ -8,6 +8,7 @@ A React dashboard backed by a PHP JSON API and a MySQL/MariaDB database. It supp
    - For a **fresh install**, import [`server/schema.sql`](./server/schema.sql). Do not run the migrations on this new schema.
    - To **upgrade an existing install**, do not re-import the schema. Migration scripts are not included in this checkout, so preserve your existing database and prepare a reviewed migration before upgrading it.
    - The initial schema contains no sample accounts or voucher recipients. Approved accounts automatically appear as voucher recipients; project and transaction tables start empty.
+   - To load realistic demo records after installing the schema, import [`database_dummy_data.sql`](./database_dummy_data.sql). The script replaces only its own `DEMO`-prefixed data; its sample accounts all use the password `password`. Use demo credentials only in a local test database, never in production.
    - Existing databases are upgraded automatically on API startup: disbursement records receive their semester and month values from the release date.
 3. **Provision the first Admin** from the repository root after the schema or migrations are installed. Run this only in a trusted terminal; password input is visible:
 
@@ -51,7 +52,7 @@ Database connection settings are read from `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_
 - Registration collects first name, last name, email, and password. New accounts receive the `User` role and `pending` status and cannot sign in until an Admin approves them and assigns a role.
 - The supported roles are `User`, `Auditor`, `Treasurer`, and `Admin`. API endpoints enforce permissions in addition to the role-filtered navigation.
 - Users and Auditors can view financial records; Auditors can review transactions and access audit history. Treasurers manage incoming funds, projects, disbursements, and liquidation. Admins can access all sections and manage accounts.
-- Treasurer and Admin users can view registered accounts in Personnel, including each account's voucher clearance status and linked receipt history. Approved accounts are automatically synchronized as voucher recipients; pending and disapproved accounts cannot be selected for new releases. Existing voucher records remain preserved.
+- Approved accounts are automatically synchronized as voucher recipients; pending and disapproved accounts cannot be selected for new releases. Existing voucher records remain preserved.
 - Passwords are stored as password hashes. Session cookies are HttpOnly and SameSite; state-changing API requests require a CSRF token. Use HTTPS and secure database credentials when deploying.
 - Password recovery is not included. Ordinary users cannot edit their own account details.
 

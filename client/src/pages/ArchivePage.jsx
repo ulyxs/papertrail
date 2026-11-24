@@ -18,14 +18,14 @@ function ProjectArchiveFolder({ name, records, pendingRecords }) {
         {money(approvedTotal / 100)}
       </div>
       <div className="page-archive-folder-actions">
-        <button type="button" onClick={() => setRecordsOpen(true)} className="page-archive-records-button">
+        <button type="button" onClick={() => setRecordsOpen(true)} className="page-neutral-button page-archive-records-button">
           View financial records
         </button>
         <div className={`page-archive-approved-badge${pendingRecords.length > 0 ? ' has-pending' : ''}`}>
           {pendingRecords.length > 0 ? 'In progress' : 'Approved'}
         </div>
       </div>
-      {recordsOpen && (<Modal title={`${name} · Financial Records`} onClose={() => setRecordsOpen(false)} width={760}>
+      {recordsOpen && (<Modal title={`${name} · Financial Records`} onClose={() => setRecordsOpen(false)} width={1120}>
           <div className="page-archive-records-summary">
             {records.length} approved · {pendingRecords.length} pending · Approved total {money(approvedTotal / 100)}
           </div>
@@ -133,4 +133,3 @@ export default function ArchivePage({ dashboard }) {
       </Panel>
     </div>);
 }
-// ─── Personnel ────────────────────────────────────────────────────────────────

@@ -40,7 +40,7 @@ function ProjectsManager({ projects, onSubmit, busy, actor, search, setSearch, o
             setSearch(event.target.value);
             projectPagination.setPage(1);
         }} placeholder="Search project name…" className="page-search-input page-project-search-input"/>
-          <button type="button" onClick={onOpenArchive} aria-label={`View archived projects (${archivedProjects.length})`} className="page-project-archive-button">
+          <button type="button" onClick={onOpenArchive} aria-label={`View archived projects (${archivedProjects.length})`} className="page-neutral-button page-project-archive-button">
             <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 4h18v5H3zM5 9v11h14V9M10 13h4"/>
             </svg>
@@ -107,7 +107,7 @@ function ProjectsManager({ projects, onSubmit, busy, actor, search, setSearch, o
                         if (window.confirm(`Delete project "${project.project_name}"?`)) {
                             onSubmit('project', { operation: 'delete', project_id: project.id, actor });
                         }
-                    }} title={linkedRecords > 0 ? 'Projects with financial records cannot be deleted; archive instead.' : 'Delete project'} className={`page-project-delete${linkedRecords > 0 ? ' has-linked-records' : ''}`}>
+                    }} title={linkedRecords > 0 ? 'Projects with financial records cannot be deleted; archive instead.' : 'Delete project'} className={`page-danger-button page-project-delete${linkedRecords > 0 ? ' has-linked-records' : ''}`}>
                         Delete
                       </button>
                     </div>
