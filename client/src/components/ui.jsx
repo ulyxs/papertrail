@@ -101,7 +101,7 @@ export function ProofModal({ transaction, kind = 'fund', onClose, zIndex = 1000,
       <section role="dialog" aria-modal="true" aria-labelledby="proof-modal-title" onClick={event => event.stopPropagation()} className="app-modal component-modal component-modal--proof" style={{ '--component-modal-width': '760px' }}>
         <div className="component-modal-header component-modal-header--start">
           <div>
-            <h2 id="proof-modal-title" className="component-modal-title">{isReceipt ? 'Receipt proof' : 'Proof of payment'}</h2>
+            <h2 id="proof-modal-title" className="component-modal-title">{isReceipt ? 'Receipt Proof' : 'Proof of Payment'}</h2>
             <div className="component-proof-meta">{name} · {fileName || 'No file name'}</div>
           </div>
           <button type="button" className="component-modal-close component-icon-button" onClick={onClose} aria-label="Close proof preview">

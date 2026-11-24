@@ -157,7 +157,7 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
           </>}
         </div>
       </Panel>
-      {resolutionTransaction && (<Modal title={`Resolve discrepancy · ${resolutionTransaction.voucher_number}`} onClose={() => setResolutionTransaction(null)} width={560}>
+      {resolutionTransaction && (<Modal title={`Resolve Discrepancy · ${resolutionTransaction.voucher_number}`} onClose={() => setResolutionTransaction(null)} width={560}>
           <div className="page-review-summary">
             {resolutionTransaction.purpose} · {resolutionTransaction.project} · {resolutionTransaction.receipt_vendor}
           </div>

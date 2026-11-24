@@ -105,7 +105,7 @@ export default function LiquidationPage({ dashboard, onSubmit, busy, actor, canS
         <Pagination pagination={waitingPagination}/>
         </div>
       </Panel>
-      {receiptTransaction && (<Modal title={`Submit receipt · ${receiptTransaction.voucher_number}`} onClose={() => setReceiptTransaction(null)} width={560}>
+      {receiptTransaction && (<Modal title={`Submit Receipt · ${receiptTransaction.voucher_number}`} onClose={() => setReceiptTransaction(null)} width={560}>
           <div className="page-liquidation-summary">
             {receiptTransaction.purpose} · {receiptTransaction.project} · {money(receiptTransaction.amount)}
           </div>

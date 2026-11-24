@@ -75,7 +75,7 @@ export default function AccountManagementPage({ accounts, onSubmit, busy, curren
         <Pagination pagination={accountPagination}/>
       </Panel>
       {editingAccount && (
-        <Modal title="Edit account details" onClose={() => setEditingAccount(null)} width={560}>
+        <Modal title="Edit Account Details" onClose={() => setEditingAccount(null)} width={560}>
           <form onSubmit={async event => {
             const completed = await submitForm(event, onSubmit, 'account', currentUser.first_name + ' ' + currentUser.last_name);
             if (completed)

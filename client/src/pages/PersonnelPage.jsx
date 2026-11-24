@@ -62,7 +62,7 @@ export default function PersonnelPage({ dashboard }) {
         </TableContainer>
         <Pagination pagination={personnelPagination}/>
       </Panel>
-      {selectedPerson && (<Modal title={`${selectedPerson.first_name} ${selectedPerson.last_name} · Receipt history`} onClose={() => setSelectedPerson(null)} width={900}>
+      {selectedPerson && (<Modal title={`${selectedPerson.first_name} ${selectedPerson.last_name} · Receipt History`} onClose={() => setSelectedPerson(null)} width={900}>
           {selectedVouchers.length === 0
                 ? <EmptyState>No vouchers or receipts are linked to this person.</EmptyState>
                 : <div>

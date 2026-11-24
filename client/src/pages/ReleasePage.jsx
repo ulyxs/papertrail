@@ -118,7 +118,7 @@ function ProjectsManager({ projects, onSubmit, busy, actor, search, setSearch, o
         <Pagination pagination={projectPagination}/>
       </div>
       {editingProject && (
-        <Modal title="Edit project details" onClose={() => setEditingProject(null)} width={680}>
+        <Modal title="Edit Project Details" onClose={() => setEditingProject(null)} width={680}>
           <form onSubmit={async event => {
             const completed = await submitForm(event, onSubmit, 'project', actor);
             if (completed)
@@ -166,7 +166,7 @@ function ArchivedProjectsModal({ projects, onSubmit, busy, actor, onClose, }) {
         if (restored)
             onClose();
     }
-    return (<Modal title={`Archived projects (${archivedProjects.length})`} onClose={onClose} width={680}>
+    return (<Modal title={`Archived Projects (${archivedProjects.length})`} onClose={onClose} width={680}>
       {archivedProjects.length === 0
             ? <EmptyState>There are no archived projects.</EmptyState>
             : <div>
@@ -232,7 +232,7 @@ function NewVoucherModal({ project, people, summary, onSubmit, busy, actor, onCl
         if (completed)
             onClose();
     }
-    return (<Modal title="New disbursement voucher" onClose={onClose} width={680}>
+    return (<Modal title="New Disbursement Voucher" onClose={onClose} width={680}>
       <p className="page-voucher-project">Project: <strong>{project.project_name}</strong> · {project.semester && project.month ? `${project.semester} · ${projectMonths.find(([value]) => Number(value) === Number(project.month))?.[1]}` : 'Period follows release date'}</p>
       <form onSubmit={handleSubmit}>
         <input type="hidden" name="project_id" value={project.id}/>

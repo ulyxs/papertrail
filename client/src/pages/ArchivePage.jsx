@@ -25,7 +25,7 @@ function ProjectArchiveFolder({ name, records, pendingRecords }) {
           {pendingRecords.length > 0 ? 'In progress' : 'Approved'}
         </div>
       </div>
-      {recordsOpen && (<Modal title={`${name} · Financial records`} onClose={() => setRecordsOpen(false)} width={760}>
+      {recordsOpen && (<Modal title={`${name} · Financial Records`} onClose={() => setRecordsOpen(false)} width={760}>
           <div className="page-archive-records-summary">
             {records.length} approved · {pendingRecords.length} pending · Approved total {money(approvedTotal / 100)}
           </div>
