@@ -135,7 +135,7 @@ export default function App() {
         try {
             await postAuthAction('register', values, csrfToken);
             setAuthSuccess('Registration submitted. Your account is pending Admin approval before you can sign in.');
-            return true;
+            return true; 
         }
         catch (registrationError) {
             setAuthError(registrationError.message);

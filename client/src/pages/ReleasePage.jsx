@@ -12,11 +12,25 @@ const projectMonths = [
 const projectSemesters = ['First Semester', 'Second Semester', 'Summer'];
 function ProjectsManager({ projects, onSubmit, busy, actor, search, setSearch, onSelect, onOpenArchive, }) {
     const [editingProject, setEditingProject] = useState(null);
+    const projectSemesterRef = useRef(null);
+    const projectMonthRef = useRef(null);
     const activeProjects = projects.filter(project => project.status === 'active');
     const archivedProjects = projects.filter(project => project.status === 'archived');
     const normalizedSearch = search.trim().toLocaleLowerCase();
     const visibleProjects = activeProjects.filter(project => project.project_name.toLocaleLowerCase().includes(normalizedSearch));
     const projectPagination = usePagination(visibleProjects, 10, normalizedSearch);
+    function selectProjectPeriodFromStartDate(event) {
+        const month = Number(event.target.value.slice(5, 7));
+        if (!month) {
+            projectSemesterRef.current.value = '';
+            projectMonthRef.current.value = '';
+            return;
+        }
+        projectMonthRef.current.value = String(month);
+        projectSemesterRef.current.value = month >= 8
+            ? 'First Semester'
+            : (month <= 5 ? 'Second Semester' : 'Summer');
+    }
     return (<Panel>
       <PanelHeader title="Project Management" right={`${activeProjects.length} active project(s)`}/>
       <div className="page-project-manager-body">
@@ -40,20 +54,20 @@ function ProjectsManager({ projects, onSubmit, busy, actor, search, setSearch, o
             <input type="hidden" name="operation" value="create"/>
             <div className="responsive-form-grid page-form-grid page-form-grid--three page-project-form-grid">
               <ApiField label="Project Name" name="project_name" id="new-project-name" placeholder="Research Congress"/>
-              <ApiField label="Project Start Date" name="start_date" id="new-project-start" type="date"/>
+              <ApiField label="Project Start Date" name="start_date" id="new-project-start" type="date" onChange={selectProjectPeriodFromStartDate} hint="Month and semester default from this date."/>
               <ApiField label="Project End Date" name="end_date" id="new-project-end" type="date"/>
             </div>
             <div className="responsive-form-grid page-form-grid page-form-grid--two page-project-form-grid">
               <div>
                 <label htmlFor="new-project-semester" className="page-field-label">Semester</label>
-                <select id="new-project-semester" name="semester" required defaultValue="" className="page-select">
+                <select ref={projectSemesterRef} id="new-project-semester" name="semester" required defaultValue="" className="page-select">
                   <option value="" disabled>Select a semester</option>
                   {projectSemesters.map(semester => <option key={semester} value={semester}>{semester}</option>)}
                 </select>
               </div>
               <div>
                 <label htmlFor="new-project-month" className="page-field-label">Month</label>
-                <select id="new-project-month" name="month" required defaultValue="" className="page-select">
+                <select ref={projectMonthRef} id="new-project-month" name="month" required defaultValue="" className="page-select">
                   <option value="" disabled>Select a month</option>
                   {projectMonths.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                 </select>
@@ -315,7 +329,10 @@ export default function ReleasePage({ dashboard, onSubmit, busy, actor, }) {
     if (selectedProject) {
         return (<div>
         <button type="button" onClick={() => setSelectedProjectId(null)} className="page-neutral-button page-back-button">
-          ← Back to Project Management
+          <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5m7 7-7-7 7-7"/>
+          </svg>
+          {' '}Back to Project Management
         </button>
         <PageHeader title={selectedProject.project_name} sub={`${selectedProject.start_date && selectedProject.end_date ? `${formatDate(selectedProject.start_date)} – ${formatDate(selectedProject.end_date)}` : 'Project dates not recorded'} · Active project`}/>
         <Panel>

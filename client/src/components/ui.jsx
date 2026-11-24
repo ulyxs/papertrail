@@ -38,10 +38,10 @@ export function DeadlineBar({ label, pct, overdue }) {
       </div>
     </div>);
 }
-export function ApiField({ label, name, id = name, type = 'text', placeholder, required = true, min, step, defaultValue, hint, }) {
+export function ApiField({ label, name, id = name, type = 'text', placeholder, required = true, min, step, defaultValue, hint, onChange, }) {
     return (<div>
       <label className="component-field-label" htmlFor={id}>{label}</label>
-      <input className="component-field-input" id={id} name={name} type={type} placeholder={placeholder} required={required} min={min} step={step} defaultValue={defaultValue}/>
+      <input className="component-field-input" id={id} name={name} type={type} placeholder={placeholder} required={required} min={min} step={step} defaultValue={defaultValue} onChange={onChange}/>
       {hint && <p className="component-field-hint">{hint}</p>}
     </div>);
 }
@@ -75,7 +75,12 @@ export function Modal({ title, onClose, children, width = 720, }) {
       <section role="dialog" aria-modal="true" aria-labelledby="app-modal-title" onClick={event => event.stopPropagation()} className="app-modal component-modal" style={{ '--component-modal-width': `${width}px` }}>
         <div className="component-modal-header">
           <h2 id="app-modal-title" className="component-modal-title">{title}</h2>
-          <button type="button" className="component-modal-close" onClick={onClose} aria-label="Close dialog">Close</button>
+          <button type="button" className="component-modal-close component-icon-button" onClick={onClose} aria-label="Close dialog">
+            <span className="component-icon-button-label" aria-hidden="true">Close</span>
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 16 16" fill="none">
+              <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"/>
+            </svg>
+          </button>
         </div>
         {children}
       </section>
@@ -99,7 +104,12 @@ export function ProofModal({ transaction, kind = 'fund', onClose, zIndex = 1000,
             <h2 id="proof-modal-title" className="component-modal-title">{isReceipt ? 'Receipt proof' : 'Proof of payment'}</h2>
             <div className="component-proof-meta">{name} · {fileName || 'No file name'}</div>
           </div>
-          <button type="button" className="component-modal-close" onClick={onClose} aria-label="Close proof preview">Close</button>
+          <button type="button" className="component-modal-close component-icon-button" onClick={onClose} aria-label="Close proof preview">
+            <span className="component-icon-button-label" aria-hidden="true">Close</span>
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 16 16" fill="none">
+              <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"/>
+            </svg>
+          </button>
         </div>
         {hasProof && !imageFailed
             ? <img src={proofUrl} alt={`${isReceipt ? 'Receipt' : 'Payment'} proof for ${name}`} onError={() => setImageFailed(true)} className="component-proof-image"/>

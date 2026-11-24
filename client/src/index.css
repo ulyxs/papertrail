@@ -35,6 +35,43 @@ body {
   margin: 0;
 }
 
+:where(button:not(.sidebar-backdrop)) {
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+
+:where(button:not(.sidebar-backdrop)):hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+:where(button:not(.sidebar-backdrop)):active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+:where(button):focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(button:not(.sidebar-backdrop)) {
+    transition: none;
+  }
+
+  :where(button:not(.sidebar-backdrop)):hover:not(:disabled),
+  :where(button:not(.sidebar-backdrop)):active:not(:disabled) {
+    transform: none;
+  }
+}
+
+input:not([type='checkbox']):not([type='radio']):not([type='button']):not([type='submit']):not([type='reset']):focus,
+select:focus,
+textarea:focus {
+  border-color: var(--color-muted, #5f86a6);
+  outline: 2px solid var(--color-muted, #5f86a6);
+  outline-offset: 1px;
+  box-shadow: 0 0 0 3px rgba(143, 182, 216, 0.28);
+}
+
 #root {
   width: 1126px;
   max-width: 100%;
@@ -216,7 +253,7 @@ p {
     cursor: pointer;
   }
 
-  .menu-btn { width: 40px; height: 40px; }
+  .menu-btn { width: 34px; height: 34px; }
   .main { padding: 24px 20px; }
 }
 
@@ -237,6 +274,8 @@ p {
   .app-header button,
   .app-modal button,
   .main summary { min-height: 40px; }
+
+  .app-header .menu-btn { min-height: 34px; }
 
   .main summary { padding: 8px 0; }
 

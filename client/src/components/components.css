@@ -5,6 +5,13 @@
   border-radius: 7px;
 }
 
+@media (max-width: 900px) {
+  .component-brand-mark {
+    width: 48px;
+    height: 48px;
+  }
+}
+
 .component-brand-title {
   font-size: 13px;
   font-weight: 700;
@@ -12,25 +19,74 @@
 }
 
 .component-account-summary {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
   text-align: right;
+}
+
+.component-account-summary .user-name {
+  color: var(--color-chrome-text);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
 }
 
 .component-signed-label {
   color: var(--color-faint);
+  max-width: min(36vw, 320px);
+  overflow: hidden;
+  font-size: 10px;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .component-logout-button {
-  padding: 6px 10px;
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-radius: 5px;
   background: var(--color-primary);
   color: var(--color-primary-text);
-  font-size: 12px;
   cursor: pointer;
+}
+
+button.component-logout-button {
+  min-height: 32px;
+}
+
+.component-logout-button svg {
+  width: 18px;
+  height: 18px;
 }
 
 .component-logout-button:disabled {
   cursor: wait;
+}
+
+.component-icon-button {
+  position: relative;
+  width: 32px;
+}
+
+.component-icon-button-label {
+  visibility: hidden;
+}
+
+.component-icon-button svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  transform: translate(-50%, -50%);
 }
 
 .component-nav-section {
@@ -117,6 +173,12 @@
   background: var(--color-white);
   color: var(--color-text);
   cursor: pointer;
+}
+
+.component-pagination-button.component-icon-button {
+  width: 24px;
+  min-width: 24px;
+  padding: 0;
 }
 
 .component-pagination-button[aria-current='page'] {
@@ -337,6 +399,17 @@
   background: var(--color-surface);
   color: var(--color-text);
   cursor: pointer;
+}
+
+@media (max-width: 700px) {
+  .component-modal .component-modal-close {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    min-height: 40px;
+    flex: 0 0 40px;
+    padding: 0;
+  }
 }
 
 .component-proof-meta {

@@ -499,4 +499,9 @@
     scroll-behavior: auto !important;
     transition: none !important;
   }
+
+  .auth-page button:hover,
+  .auth-page button:active {
+    transform: none;
+  }
 }
