@@ -164,7 +164,7 @@ SELECT
     WHEN 5 THEN 'Grants'
     ELSE 'Others'
   END,
-  CAST(2000 + MOD(n * 137, 14700) AS DECIMAL(12, 2)),
+  CAST(8000 + MOD(n * 137, 14700) AS DECIMAL(12, 2)),
   DATE_SUB(CURDATE(), INTERVAL MOD(n * 11, 1800) DAY),
   CONCAT('Demo ledger entry ', LPAD(n, 4, '0'),
          '; recorded for routine campus operating and project costs.'),
