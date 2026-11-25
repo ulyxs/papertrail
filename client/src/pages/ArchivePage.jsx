@@ -8,6 +8,7 @@ function ProjectArchiveFolder({ name, records, pendingRecords }) {
     const allRecords = [...records, ...pendingRecords];
     const recordPagination = usePagination(allRecords);
     const [recordsOpen, setRecordsOpen] = useState(false);
+    const [resolutionRecord, setResolutionRecord] = useState(null);
     const approvedTotal = records.reduce((total, record) => total + cents(record.amount), 0);
     return (<div className="page-archive-folder">
       <div className="page-archive-folder-name">{name}</div>
@@ -47,13 +48,20 @@ function ProjectArchiveFolder({ name, records, pendingRecords }) {
                         flagged: 'Flagged',
                         approved: 'Approved',
                     }[record.status] || record.status}
-                    {record.resolution_note && <div className="page-archive-resolution"><strong>Resolution:</strong> {record.resolution_note}</div>}
+                    {record.resolution_note && <div className="page-archive-resolution">
+                      <button type="button" className="page-audit-sort-button page-archive-resolution-more" onClick={() => setResolutionRecord(record)}>
+                        See Resolution
+                      </button>
+                    </div>}
                   </div>
                 </div>))}
             </div>
           </div>
           <Pagination pagination={recordPagination}/>
         </Modal>)}
+      {resolutionRecord && <Modal title={`Resolution · ${resolutionRecord.voucher_number}`} onClose={() => setResolutionRecord(null)} width={560}>
+        <div className="page-archive-resolution-content">{resolutionRecord.resolution_note}</div>
+      </Modal>}
     </div>);
 }
 export default function ArchivePage({ dashboard }) {

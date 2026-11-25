@@ -40,7 +40,7 @@ FROM (
     UNION ALL SELECT 8 UNION ALL SELECT 9
   ) AS thousands
 ) AS generated
-WHERE generated.n BETWEEN 1 AND 1200;
+WHERE generated.n BETWEEN 1 AND 40;
 
 START TRANSACTION;
 
@@ -72,8 +72,7 @@ WHERE actor LIKE 'DEMO:%';
 DELETE FROM accounts
 WHERE email LIKE 'demo-%@papertrail.test';
 
--- 120 accounts: 100 approved, 10 pending, and 10 disapproved.
--- The first account is an Admin; several are Treasurers and Auditors.
+-- Twelve approved accounts cover the Admin, Treasurer, and Auditor roles.
 INSERT INTO accounts
   (first_name, last_name, email, password_hash, role, status, created_at, updated_at)
 SELECT
@@ -103,15 +102,11 @@ SELECT
     WHEN n BETWEEN 6 AND 12 THEN 'Auditor'
     ELSE 'User'
   END,
-  CASE
-    WHEN n <= 100 THEN 'approved'
-    WHEN n <= 110 THEN 'pending'
-    ELSE 'disapproved'
-  END,
+  'approved',
   DATE_SUB(NOW(), INTERVAL MOD(n * 17, 1500) DAY),
   DATE_SUB(NOW(), INTERVAL LEAST(MOD(n * 17, 1500), MOD(n * 7, 30)) DAY)
 FROM demo_seed_numbers
-WHERE n <= 120;
+WHERE n <= 12;
 
 -- Approved accounts are active recipients; disapproved accounts remain archived.
 INSERT INTO people (account_id, name, position, status, created_at)
@@ -125,7 +120,7 @@ FROM accounts AS a
 WHERE a.email LIKE 'demo-%@papertrail.test'
   AND a.status IN ('approved', 'disapproved');
 
--- 80 dated projects; the final ten are archived and are not used by new releases.
+-- Five dated projects used by the import test cases.
 INSERT INTO projects
   (project_name, start_date, end_date, semester, month, status, created_at)
 SELECT
@@ -141,12 +136,12 @@ SELECT
     ELSE 'Summer'
   END,
   MONTH(DATE_SUB(CURDATE(), INTERVAL (n * 19) DAY)),
-  IF(n <= 70, 'active', 'archived'),
+  'active',
   DATE_SUB(NOW(), INTERVAL (n * 19) DAY)
 FROM demo_seed_numbers
-WHERE n <= 80;
+WHERE n <= 5;
 
--- 500 incoming fund records spread across categories and dates.
+-- Twenty incoming fund records for the funds ledger.
 INSERT INTO funds
   (source_name, income_category, amount, received_on, note, created_at)
 SELECT
@@ -175,13 +170,12 @@ SELECT
          '; recorded for routine campus operating and project costs.'),
   DATE_SUB(NOW(), INTERVAL MOD(n * 11, 1800) DAY)
 FROM demo_seed_numbers
-WHERE n <= 500;
+WHERE n <= 20;
 
--- 1,000 project-linked vouchers. Awaiting receipts are recent (not overdue);
--- a small set of flagged vouchers intentionally tests recipient holds/review.
+-- Forty project-linked import test cases exercise receipt and auditor workflows.
 INSERT INTO disbursements
   (voucher_number, purpose, person_id, project_id, amount, released_on,
-   semester, month, status, created_at)
+   semester, month, status, resolution_note, created_at)
 SELECT
   CONCAT('DEMO-DV-', YEAR(s.released_date), '-', LPAD(s.n, 6, '0')),
   CASE MOD(s.n, 10)
@@ -207,10 +201,15 @@ SELECT
   END,
   MONTH(s.released_date),
   CASE
-    WHEN MOD(s.n, 20) IN (0, 1) THEN 'awaiting_receipt'
-    WHEN MOD(s.n, 20) IN (2, 3) THEN 'for_review'
-    WHEN MOD(s.n, 20) = 4 AND s.person_number IN (4, 24, 44, 64, 84) THEN 'flagged'
+    WHEN MOD(s.n, 10) = 0 THEN 'awaiting_receipt'
+    WHEN MOD(s.n, 10) = 1 THEN 'for_review'
+    WHEN MOD(s.n, 10) = 2 THEN 'flagged'
     ELSE 'approved'
+  END,
+  CASE
+    WHEN MOD(s.n, 10) = 3
+      THEN 'Verified corrected receipt and refund documentation.'
+    ELSE NULL
   END,
   DATE_ADD(
     s.released_date,
@@ -219,14 +218,14 @@ SELECT
 FROM (
   SELECT
     n,
-    1 + MOD(n - 1, 100) AS person_number,
+    1 + MOD(n - 1, 12) AS person_number,
     CASE
-      WHEN MOD(n, 20) IN (0, 1)
+      WHEN MOD(n, 10) = 0
         THEN DATE_SUB(CURDATE(), INTERVAL MOD(n * 13, 6) DAY)
       ELSE DATE_SUB(CURDATE(), INTERVAL (10 + MOD(n * 13, 1340)) DAY)
     END AS released_date
   FROM demo_seed_numbers
-  WHERE n <= 1000
+  WHERE n <= 40
 ) AS s
 JOIN people AS p
   ON p.account_id = (
@@ -235,7 +234,7 @@ JOIN people AS p
     WHERE a.email = CONCAT('demo-', LPAD(s.person_number, 3, '0'), '@papertrail.test')
   )
 JOIN projects AS pr
-  ON pr.project_name = CONCAT('DEMO: Campus Project ', LPAD(1 + MOD(s.n - 1, 70), 3, '0'));
+  ON pr.project_name = CONCAT('DEMO: Campus Project ', LPAD(1 + MOD(s.n - 1, 5), 3, '0'));
 
 -- Receipts exist for every voucher that has moved beyond awaiting_receipt.
 -- Flagged examples intentionally have a small amount discrepancy.
@@ -270,7 +269,7 @@ JOIN demo_seed_numbers AS n
   ON d.voucher_number = CONCAT('DEMO-DV-', YEAR(d.released_on), '-', LPAD(n.n, 6, '0'))
 WHERE d.status <> 'awaiting_receipt';
 
--- 1,200 varied audit events attributed to demo staff accounts.
+-- Forty audit events attributed to demo staff accounts.
 INSERT INTO audit_log (actor, action, detail, created_at)
 SELECT
   CONCAT('DEMO: ', a.first_name, ' ', a.last_name),
@@ -292,7 +291,7 @@ SELECT
 FROM demo_seed_numbers AS n
 JOIN accounts AS a
   ON a.email = CONCAT('demo-', LPAD(1 + MOD(n.n - 1, 12), 3, '0'), '@papertrail.test')
-WHERE n.n <= 1200;
+WHERE n.n <= 40;
 
 COMMIT;
 

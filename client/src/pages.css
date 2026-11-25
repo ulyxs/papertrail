@@ -446,6 +446,17 @@
   overflow-wrap: anywhere;
 }
 
+.page-archive-resolution-more {
+  color: var(--color-link);
+  text-decoration: underline;
+}
+
+.page-archive-resolution-content {
+  padding: 20px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 700px) {
   .page-archive-records-table {
     min-width: 760px;

@@ -9,7 +9,7 @@ A React dashboard backed by a PHP JSON API and a MySQL/MariaDB database. It supp
    - To **upgrade an existing install**, do not re-import the schema. Migration scripts are not included in this checkout, so preserve your existing database and prepare a reviewed migration before upgrading it.
    - The initial schema contains no sample accounts or voucher recipients. Approved accounts automatically appear as voucher recipients; project and transaction tables start empty.
    - To load realistic demo records after installing the schema, import [`database_dummy_data.sql`](./database_dummy_data.sql). The script replaces only its own `DEMO`-prefixed data; its sample accounts all use the password `password`. Use demo credentials only in a local test database, never in production.
-   - Existing databases are upgraded automatically on API startup: disbursement records receive their semester and month values from the release date.
+   - The API does not alter the database schema on startup. To apply this schema to an existing database, back it up and recreate it before importing; importing this file over existing tables will not update them because it uses `CREATE TABLE IF NOT EXISTS`.
 3. **Provision the first Admin** from the repository root after the schema or migrations are installed. Run this only in a trusted terminal; password input is visible:
 
    ```powershell
