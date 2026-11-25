@@ -438,6 +438,14 @@
   color: var(--color-amber);
 }
 
+.page-archive-resolution {
+  margin-top: 5px;
+  color: var(--color-text);
+  font-size: 12px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 700px) {
   .page-archive-records-table {
     min-width: 760px;
@@ -694,8 +702,30 @@
   gap: 12px;
 }
 
+.page-table-controls {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: end;
+  gap: 12px;
+  overflow-x: auto;
+}
+
+.page-table-search {
+  flex: 1.5 1 145px;
+  min-width: 125px;
+}
+
 .page-audit-filter {
   min-width: 0;
+}
+
+.page-table-controls .page-audit-filter {
+  flex: 1 1 100px;
+  min-width: 82px;
+}
+
+.page-table-controls .page-audit-clear {
+  flex: 0 0 auto;
 }
 
 .page-audit-filter .page-select,
@@ -704,6 +734,22 @@
   width: 100%;
   max-width: none;
   box-sizing: border-box;
+}
+
+.page-table-controls .page-search-input,
+.page-table-controls .page-select {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
+
+.page-table-controls input[type='date'] {
+  color-scheme: light;
+}
+
+.page-table-controls input[type='date']::-webkit-calendar-picker-indicator {
+  opacity: 1;
+  cursor: pointer;
 }
 
 .page-audit-date-filter {
@@ -899,6 +945,14 @@
   min-width: 0;
 }
 
+.page-review-table--pending {
+  min-width: 1100px;
+}
+
+.page-review-table--pending .page-review-col-accountable {
+  width: 150px;
+}
+
 .page-review-col-voucher {
   width: 130px;
 }
@@ -1041,7 +1095,7 @@
 }
 
 .page-liquidation-table--waiting {
-  min-width: 700px;
+  min-width: 860px;
 }
 
 .page-liquidation-table--owed .page-liquidation-header,
@@ -1051,7 +1105,7 @@
 
 .page-liquidation-table--waiting .page-liquidation-header,
 .page-liquidation-row--waiting {
-  grid-template-columns: 2fr 2fr 1fr 1fr 1fr;
+  grid-template-columns: 2fr 2fr 1fr 1.8fr 1fr;
 }
 
 .page-liquidation-table--owed .page-liquidation-header > span:first-child,
@@ -1213,7 +1267,7 @@
 
 .page-funds-header,
 .page-funds-row {
-  grid-template-columns: 1.3fr 1.5fr 1.5fr 1fr 1fr 1fr;
+  grid-template-columns: 1.3fr 1.5fr 1.5fr 1fr 1fr 1.8fr;
 }
 
 .page-funds-header {
@@ -1226,8 +1280,26 @@
   padding: 14px 20px;
 }
 
+.page-funds-header > span:nth-child(2),
+.page-funds-row > span:nth-child(2) {
+  padding-right: 16px;
+}
+
 .page-funds-row > div:last-child {
   min-width: 0;
+}
+
+.page-proof-actions {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.page-proof-attach-button {
+  border-color: var(--color-link);
+  background: var(--color-link);
+  color: var(--color-white);
 }
 
 .page-project-manager-body {

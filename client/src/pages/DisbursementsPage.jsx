@@ -3,20 +3,42 @@ import { PageHeader, Panel, PanelHeader, StatusDot, DeadlineBar, ProofModal, Emp
 import { money, formatDate, daysUntil, isOverdue, statusLabel } from '../utils/formatters';
 import { usePagination } from '../hooks/usePagination';
 import Pagination from '../components/Pagination';
+import TableControls, { TableSortHeader } from '../components/TableControls';
+import { useTableControls } from '../hooks/useTableControls';
 export default function DisbursementsPage({ dashboard }) {
     const { disbursements } = dashboard;
     const [proofTransaction, setProofTransaction] = useState(null);
-    const disbursementPagination = usePagination(disbursements);
+    const disbursementControls = useTableControls(disbursements, {
+        searchFields: ['id', 'voucher_number', 'purpose', 'accountable', 'project', 'receipt_vendor', 'receipt_reference', 'receipt_note', 'amount', 'receipt_amount'],
+        dateField: 'released_on',
+        statusField: 'status',
+        defaultSort: 'due_on',
+        defaultDirection: 'desc',
+    });
+    const disbursementPagination = usePagination(disbursementControls.records, 10, disbursementControls.resetKey);
     return (<div>
       <PageHeader title="Disbursements"/>
       <Panel>
-        <PanelHeader title="All Transactions" right={`${disbursements.length} record(s)`}/>
+        <PanelHeader title="All Transactions" right={`${disbursementControls.records.length} of ${disbursements.length} record(s)`}/>
+        <TableControls id="disbursements" controls={disbursementControls} dateLabel="Released" statusOptions={[
+            { value: 'awaiting_receipt', label: 'Awaiting receipt' },
+            { value: 'for_review', label: 'For review' },
+            { value: 'flagged', label: 'Flagged' },
+            { value: 'approved', label: 'Approved' },
+        ]}/>
         <div className="ledger-table-scroll">
           <div className="page-disbursement-table">
             <div className="page-disbursement-header">
-              {['Voucher', 'Accountable', 'Amount', 'Receipt', 'Deadline', 'Status'].map(h => (<span key={h}>{h}</span>))}
+              {[
+                { label: 'Voucher', field: 'voucher_number' },
+                { label: 'Accountable', field: 'accountable' },
+                { label: 'Amount', field: 'amount' },
+                { label: 'Receipt' },
+                { label: 'Deadline', field: 'due_on' },
+                { label: 'Status', field: 'status' },
+              ].map(({ label, field }) => (<span key={label}>{field ? <TableSortHeader controls={disbursementControls} field={field}>{label}</TableSortHeader> : label}</span>))}
             </div>
-            {disbursements.length === 0 ? <EmptyState /> : disbursementPagination.records.map((r, i) => {
+            {disbursementControls.records.length === 0 ? <EmptyState>{disbursements.length === 0 ? 'No transactions have been recorded.' : 'No transactions match your filters.'}</EmptyState> : disbursementPagination.records.map((r, i) => {
             const remaining = daysUntil(r.due_on);
             const overdue = isOverdue(r);
             const label = r.status === 'approved'

@@ -5,14 +5,28 @@ import { money, cents, formatDate } from '../utils/formatters';
 import { usePagination } from '../hooks/usePagination';
 import Pagination from '../components/Pagination';
 import TableContainer from '../components/TableContainer';
+import TableControls, { TableSortHeader } from '../components/TableControls';
+import { useTableControls } from '../hooks/useTableControls';
 export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
     const pending = dashboard.disbursements.filter(record => record.status === 'for_review');
     const flagged = dashboard.disbursements.filter(record => record.status === 'flagged');
     const [proofTransaction, setProofTransaction] = useState(null);
     const [resolutionTransaction, setResolutionTransaction] = useState(null);
     const [activeTab, setActiveTab] = useState('pending');
-    const pendingPagination = usePagination(pending);
-    const flaggedPagination = usePagination(flagged);
+    const pendingControls = useTableControls(pending, {
+        searchFields: ['id', 'voucher_number', 'purpose', 'project', 'accountable', 'receipt_vendor', 'receipt_reference', 'receipt_note', 'amount', 'receipt_amount'],
+        dateField: 'receipt_submitted_on',
+        defaultSort: 'receipt_submitted_on',
+        defaultDirection: 'desc',
+    });
+    const flaggedControls = useTableControls(flagged, {
+        searchFields: ['id', 'voucher_number', 'purpose', 'project', 'accountable', 'receipt_vendor', 'receipt_reference', 'receipt_note', 'amount', 'receipt_amount'],
+        dateField: 'receipt_submitted_on',
+        defaultSort: 'receipt_submitted_on',
+        defaultDirection: 'desc',
+    });
+    const pendingPagination = usePagination(pendingControls.records, 10, pendingControls.resetKey);
+    const flaggedPagination = usePagination(flaggedControls.records, 10, flaggedControls.resetKey);
     function handleTabKeyDown(event) {
         const tabs = Array.from(event.currentTarget.parentElement.querySelectorAll('[role="tab"]'));
         const currentIndex = tabs.indexOf(event.currentTarget);
@@ -51,8 +65,9 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
           </button>
         </div>
         <div id="review-panel-pending" role="tabpanel" aria-labelledby="review-tab-pending" hidden={activeTab !== 'pending'}>
-        {pending.length === 0
-            ? <EmptyState>No receipts are waiting for a decision.</EmptyState>
+        <TableControls id="pending-decisions" controls={pendingControls} dateLabel="Submitted"/>
+        {pendingControls.records.length === 0
+            ? <EmptyState>{pending.length === 0 ? 'No receipts are waiting for a decision.' : 'No records match your filters.'}</EmptyState>
             : <>
             <TableContainer>
               <table className="page-table page-review-table page-review-table--responsive page-review-table--pending">
@@ -67,7 +82,16 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
                   <col className="page-review-col-actions"/>
                 </colgroup>
                 <thead>
-                  <tr>{['Voucher', 'Accountable', 'Receipt details', 'Released', 'Receipted', 'Difference', 'Proof', 'Actions'].map(label => <th key={label} scope="col" className={['Released', 'Receipted', 'Difference'].includes(label) ? 'page-review-money-column' : undefined}>{label}</th>)}</tr>
+                  <tr>{[
+                    { label: 'Voucher', field: 'voucher_number' },
+                    { label: 'Accountable', field: 'accountable' },
+                    { label: 'Receipt details', field: 'receipt_submitted_on' },
+                    { label: 'Released', field: 'amount' },
+                    { label: 'Receipted', field: 'receipt_amount' },
+                    { label: 'Difference' },
+                    { label: 'Proof' },
+                    { label: 'Actions' },
+                  ].map(({ label, field }) => <th key={label} scope="col" className={['Released', 'Receipted', 'Difference'].includes(label) ? 'page-review-money-column' : undefined} aria-sort={field && pendingControls.values.sortField === field ? (pendingControls.values.sortDirection === 'asc' ? 'ascending' : 'descending') : undefined}>{field ? <TableSortHeader controls={pendingControls} field={field}>{label}</TableSortHeader> : label}</th>)}</tr>
                 </thead>
                 <tbody>
                   {pendingPagination.records.map(record => {
@@ -110,8 +134,9 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
           </>}
         </div>
         <div id="review-panel-flagged" role="tabpanel" aria-labelledby="review-tab-flagged" hidden={activeTab !== 'flagged'}>
-        {flagged.length === 0
-            ? <EmptyState>No flagged transactions need resolution.</EmptyState>
+        <TableControls id="flagged-transactions" controls={flaggedControls} dateLabel="Submitted"/>
+        {flaggedControls.records.length === 0
+            ? <EmptyState>{flagged.length === 0 ? 'No flagged transactions need resolution.' : 'No records match your filters.'}</EmptyState>
             : <>
             <TableContainer>
               <table className="page-table page-review-table page-review-table--responsive page-review-table--flagged">
@@ -125,7 +150,15 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
                   <col className="page-review-col-resolution"/>
                 </colgroup>
                 <thead>
-                  <tr>{['Voucher', 'Accountable', 'Receipt details', 'Released', 'Receipted', 'Proof', 'Resolution'].map(label => <th key={label} scope="col" className={['Released', 'Receipted'].includes(label) ? 'page-review-money-column' : undefined}>{label}</th>)}</tr>
+                  <tr>{[
+                    { label: 'Voucher', field: 'voucher_number' },
+                    { label: 'Accountable', field: 'accountable' },
+                    { label: 'Receipt details', field: 'receipt_submitted_on' },
+                    { label: 'Released', field: 'amount' },
+                    { label: 'Receipted', field: 'receipt_amount' },
+                    { label: 'Proof' },
+                    { label: 'Resolution' },
+                  ].map(({ label, field }) => <th key={label} scope="col" className={['Released', 'Receipted'].includes(label) ? 'page-review-money-column' : undefined} aria-sort={field && flaggedControls.values.sortField === field ? (flaggedControls.values.sortDirection === 'asc' ? 'ascending' : 'descending') : undefined}>{field ? <TableSortHeader controls={flaggedControls} field={field}>{label}</TableSortHeader> : label}</th>)}</tr>
                 </thead>
                 <tbody>
                   {flaggedPagination.records.map(record => (<tr key={record.id}>

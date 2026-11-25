@@ -1,14 +1,24 @@
 import { useState } from 'react';
-import { PageHeader, Panel, ApiField, ProofUpload, ProofModal, EmptyState } from '../components/ui';
+import { PageHeader, Panel, ApiField, ProofUpload, ProofModal, Modal, EmptyState } from '../components/ui';
 import { submitForm } from '../services/forms';
 import { money, today, formatDate } from '../utils/formatters';
 import { usePagination } from '../hooks/usePagination';
 import Pagination from '../components/Pagination';
+import TableControls, { TableSortHeader } from '../components/TableControls';
+import { useTableControls } from '../hooks/useTableControls';
 export default function FundsPage({ dashboard, onSubmit, busy, actor, canManage, }) {
     const { funds } = dashboard;
     const [proofFund, setProofFund] = useState(null);
+    const [attachProofFund, setAttachProofFund] = useState(null);
     const [activeFolder, setActiveFolder] = useState(canManage ? 'record' : 'ledger');
-    const fundsPagination = usePagination(funds);
+    const fundsControls = useTableControls(funds, {
+        searchFields: ['id', 'source_name', 'income_category', 'note', 'received_on', 'amount'],
+        dateField: 'received_on',
+        categoryField: 'income_category',
+        defaultSort: 'received_on',
+        defaultDirection: 'desc',
+    });
+    const fundsPagination = usePagination(fundsControls.records, 10, fundsControls.resetKey);
     const categories = [
         'Department Allocation',
         'Membership Dues',
@@ -77,20 +87,31 @@ export default function FundsPage({ dashboard, onSubmit, busy, actor, canManage,
         </div>}
 
         <div id="funds-panel-ledger" role="tabpanel" aria-labelledby="funds-tab-ledger" hidden={activeFolder !== 'ledger'}>
-        <div className="page-funds-ledger-summary">{funds.length} record(s) · {money(dashboard.summary.total_received)} total</div>
+        <div className="page-funds-ledger-summary">{fundsControls.records.length} of {funds.length} record(s) · {money(dashboard.summary.total_received)} total</div>
+        <TableControls id="receipts-ledger" controls={fundsControls} dateLabel="Received" categoryOptions={fundsControls.categories.map(value => ({ value, label: value }))}/>
         <div className="ledger-table-scroll">
           <div className="page-funds-table">
             <div className="page-funds-header">
-              {['Category', 'Source Name', 'Note', 'Date', 'Amount', 'Proof'].map(h => (<span key={h}>{h}</span>))}
+              {[
+                { label: 'Category', field: 'income_category' },
+                { label: 'Source Name', field: 'source_name' },
+                { label: 'Note', field: 'note' },
+                { label: 'Date', field: 'received_on' },
+                { label: 'Amount', field: 'amount' },
+                { label: 'Proof' },
+              ].map(({ label, field }) => (<span key={label}>{field ? <TableSortHeader controls={fundsControls} field={field}>{label}</TableSortHeader> : label}</span>))}
             </div>
-            {funds.length === 0 ? <EmptyState /> : fundsPagination.records.map((r, i) => (<div key={r.id} className={`page-funds-row${i > 0 ? ' has-divider' : ''}`}>
+            {fundsControls.records.length === 0 ? <EmptyState>{funds.length === 0 ? 'No fund records have been recorded.' : 'No records match your filters.'}</EmptyState> : fundsPagination.records.map((r, i) => (<div key={r.id} className={`page-funds-row${i > 0 ? ' has-divider' : ''}`}>
                 <span className="page-muted">{r.income_category}</span>
                 <span className="page-medium">{r.source_name}</span>
                 <span className="page-muted">{r.note || '—'}</span>
                 <span className="page-muted">{formatDate(r.received_on)}</span>
                 <span className="page-medium">{money(r.amount)}</span>
                 <div>
-                  <button type="button" onClick={() => setProofFund(r)} className="page-proof-button page-cell-nowrap">View Proof</button>
+                  <div className="page-proof-actions">
+                    <button type="button" onClick={() => setProofFund(r)} className="page-proof-button page-cell-nowrap">View Proof</button>
+                    {canManage && Number(r.has_proof) !== 1 && <button type="button" onClick={() => setAttachProofFund(r)} className="page-neutral-button page-proof-attach-button page-cell-nowrap">Attach Proof</button>}
+                  </div>
                   <div className="page-proof-note page-proof-filename" title={Number(r.has_proof) === 1 ? (r.proof_name || 'Image uploaded') : undefined}>{Number(r.has_proof) === 1 ? (r.proof_name || 'Image uploaded') : 'No proof uploaded'}</div>
                 </div>
               </div>))}
@@ -99,6 +120,23 @@ export default function FundsPage({ dashboard, onSubmit, busy, actor, canManage,
         <Pagination pagination={fundsPagination}/>
         </div>
       </Panel>
+      {attachProofFund && <Modal title="Attach Proof to Fund Record" onClose={() => setAttachProofFund(null)} width={560}>
+        <div className="page-liquidation-summary">
+          {attachProofFund.source_name} · {attachProofFund.income_category} · {money(attachProofFund.amount)}
+        </div>
+        <form onSubmit={async event => {
+          const completed = await submitForm(event, onSubmit, 'fund-proof', actor);
+          if (completed)
+            setAttachProofFund(null);
+        }}>
+          <input type="hidden" name="fund_id" value={attachProofFund.id}/>
+          <ProofUpload id="attach-fund-proof" label="Proof image" required/>
+          <div className="page-modal-actions">
+            <button type="button" onClick={() => setAttachProofFund(null)} disabled={busy} className="page-neutral-button page-modal-button">Cancel</button>
+            <button type="submit" disabled={busy} className="page-primary-button page-modal-button">{busy ? 'Attaching…' : 'Attach Proof'}</button>
+          </div>
+        </form>
+      </Modal>}
       <ProofModal key={proofFund?.id ?? 'closed'} transaction={proofFund} onClose={() => setProofFund(null)}/>
     </div>);
 }

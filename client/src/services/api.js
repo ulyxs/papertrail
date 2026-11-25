@@ -63,7 +63,7 @@ export async function postAction(action, values, csrfToken) {
     let body;
     let headers;
     // Funds and receipts use multipart requests to carry proof images; other actions are JSON.
-    if (action === 'funds' || action === 'receipt') {
+    if (action === 'funds' || action === 'receipt' || action === 'fund-proof' || action === 'receipt-proof') {
         const formData = new FormData();
         body = formData;
         Object.entries(values).forEach(([key, value]) => {

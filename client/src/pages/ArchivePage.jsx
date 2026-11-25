@@ -40,14 +40,15 @@ function ProjectArchiveFolder({ name, records, pendingRecords }) {
                   <span>{record.accountable}</span>
                   <span>{formatDate(record.released_on)}</span>
                   <span className="page-archive-record-amount">{money(record.amount)}</span>
-                  <span className={`page-archive-record-status${record.status !== 'approved' ? ' pending' : ''}`}>
+                  <div className={`page-archive-record-status${record.status !== 'approved' ? ' pending' : ''}`}>
                     {{
                         awaiting_receipt: 'Awaiting receipt',
                         for_review: 'Pending review',
                         flagged: 'Flagged',
                         approved: 'Approved',
                     }[record.status] || record.status}
-                  </span>
+                    {record.resolution_note && <div className="page-archive-resolution"><strong>Resolution:</strong> {record.resolution_note}</div>}
+                  </div>
                 </div>))}
             </div>
           </div>

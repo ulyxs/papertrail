@@ -4,15 +4,30 @@ import { submitForm } from '../services/forms';
 import { money, cents, today, formatDate, daysUntil } from '../utils/formatters';
 import { usePagination } from '../hooks/usePagination';
 import Pagination from '../components/Pagination';
+import TableControls, { TableSortHeader } from '../components/TableControls';
+import { useTableControls } from '../hooks/useTableControls';
 export default function LiquidationPage({ dashboard, onSubmit, busy, actor, canSubmitReceipt, }) {
     const { disbursements } = dashboard;
     const owed = disbursements.filter(record => record.status === 'awaiting_receipt');
     const waiting = disbursements.filter(record => record.status === 'for_review');
     const [proofTransaction, setProofTransaction] = useState(null);
     const [receiptTransaction, setReceiptTransaction] = useState(null);
+    const [attachProofTransaction, setAttachProofTransaction] = useState(null);
     const [activeTab, setActiveTab] = useState('owed');
-    const owedPagination = usePagination(owed);
-    const waitingPagination = usePagination(waiting);
+    const owedControls = useTableControls(owed, {
+        searchFields: ['id', 'voucher_number', 'purpose', 'accountable', 'project', 'amount'],
+        dateField: 'due_on',
+        defaultSort: 'due_on',
+        defaultDirection: 'desc',
+    });
+    const waitingControls = useTableControls(waiting, {
+        searchFields: ['id', 'voucher_number', 'purpose', 'accountable', 'project', 'receipt_vendor', 'receipt_reference', 'receipt_note', 'amount', 'receipt_amount'],
+        dateField: 'receipt_submitted_on',
+        defaultSort: 'receipt_submitted_on',
+        defaultDirection: 'desc',
+    });
+    const owedPagination = usePagination(owedControls.records, 10, owedControls.resetKey);
+    const waitingPagination = usePagination(waitingControls.records, 10, waitingControls.resetKey);
     function handleTabKeyDown(event) {
         const tabs = Array.from(event.currentTarget.parentElement.querySelectorAll('[role="tab"]'));
         const currentIndex = tabs.indexOf(event.currentTarget);
@@ -42,12 +57,19 @@ export default function LiquidationPage({ dashboard, onSubmit, busy, actor, canS
           </button>
         </div>
         <div id="liquidation-panel-owed" role="tabpanel" aria-labelledby="liquidation-tab-owed" hidden={activeTab !== 'owed'}>
+        <TableControls id="receipts-owed" controls={owedControls} dateLabel="Deadline"/>
         <div className="ledger-table-scroll">
           <div className="page-liquidation-table page-liquidation-table--owed">
             <div className="page-liquidation-header">
-              {['Voucher', 'Accountable', 'Amount', 'Deadline', 'Action'].map(h => (<span key={h}>{h}</span>))}
+              {[
+                { label: 'Voucher', field: 'voucher_number' },
+                { label: 'Accountable', field: 'accountable' },
+                { label: 'Amount', field: 'amount' },
+                { label: 'Deadline', field: 'due_on' },
+                { label: 'Action' },
+              ].map(({ label, field }) => (<span key={label}>{field ? <TableSortHeader controls={owedControls} field={field}>{label}</TableSortHeader> : label}</span>))}
             </div>
-            {owed.length === 0 ? <EmptyState>No receipts are currently owed.</EmptyState> : owedPagination.records.map((r, i) => {
+            {owedControls.records.length === 0 ? <EmptyState>{owed.length === 0 ? 'No receipts are currently owed.' : 'No records match your filters.'}</EmptyState> : owedPagination.records.map((r, i) => {
             const remaining = daysUntil(r.due_on);
             const overdue = remaining < 0;
             return (<div key={r.id} className={`page-liquidation-row page-liquidation-row--owed${i > 0 ? ' has-divider' : ''}`}>
@@ -71,12 +93,19 @@ export default function LiquidationPage({ dashboard, onSubmit, busy, actor, canS
         </div>
 
         <div id="liquidation-panel-waiting" role="tabpanel" aria-labelledby="liquidation-tab-waiting" hidden={activeTab !== 'waiting'}>
+        <TableControls id="submitted-receipts" controls={waitingControls} dateLabel="Submitted"/>
         <div className="ledger-table-scroll">
           <div className="page-liquidation-table page-liquidation-table--waiting">
             <div className="page-liquidation-header">
-              {['Voucher', 'Receipt', 'Difference', 'Proof', 'Status'].map(h => (<span key={h}>{h}</span>))}
+              {[
+                { label: 'Voucher', field: 'voucher_number' },
+                { label: 'Receipt', field: 'receipt_submitted_on' },
+                { label: 'Difference', field: 'receipt_amount' },
+                { label: 'Proof' },
+                { label: 'Status' },
+              ].map(({ label, field }) => (<span key={label}>{field ? <TableSortHeader controls={waitingControls} field={field}>{label}</TableSortHeader> : label}</span>))}
             </div>
-            {waiting.length === 0 ? <EmptyState>No submitted receipts are waiting for review.</EmptyState> : waitingPagination.records.map((r, i) => {
+            {waitingControls.records.length === 0 ? <EmptyState>{waiting.length === 0 ? 'No submitted receipts are waiting for review.' : 'No records match your filters.'}</EmptyState> : waitingPagination.records.map((r, i) => {
             const differenceCents = cents(r.receipt_amount) - cents(r.amount);
             return (<div key={r.id} className={`page-liquidation-row page-liquidation-row--waiting${i > 0 ? ' has-divider' : ''}`}>
                   <div>
@@ -89,7 +118,10 @@ export default function LiquidationPage({ dashboard, onSubmit, busy, actor, canS
                   </div>
                   <span className={`page-liquidation-difference${differenceCents ? ' overdue' : ''}`}>{differenceCents === 0 ? 'Exact' : money(differenceCents / 100)}</span>
                   <div>
-                    <button type="button" onClick={() => setProofTransaction(r)} className="page-proof-button page-cell-nowrap">View Proof</button>
+                    <div className="page-proof-actions">
+                      <button type="button" onClick={() => setProofTransaction(r)} className="page-proof-button page-cell-nowrap">View Proof</button>
+                      {canSubmitReceipt && Number(r.has_receipt_proof) !== 1 && <button type="button" onClick={() => setAttachProofTransaction(r)} disabled={busy} className="page-neutral-button page-proof-attach-button page-cell-nowrap">Attach Proof</button>}
+                    </div>
                     <div className="page-proof-note page-proof-filename" title={Number(r.has_receipt_proof) === 1 ? (r.receipt_proof_name || 'Image uploaded') : undefined}>{Number(r.has_receipt_proof) === 1 ? (r.receipt_proof_name || 'Image uploaded') : 'No proof uploaded'}</div>
                   </div>
                   <div>
@@ -136,6 +168,23 @@ export default function LiquidationPage({ dashboard, onSubmit, busy, actor, canS
             </div>
           </form>
         </Modal>)}
+      {attachProofTransaction && <Modal title={`Attach Receipt Proof · ${attachProofTransaction.voucher_number}`} onClose={() => setAttachProofTransaction(null)} width={560}>
+        <div className="page-liquidation-summary">
+          {attachProofTransaction.purpose} · {attachProofTransaction.receipt_vendor} · {money(attachProofTransaction.receipt_amount)}
+        </div>
+        <form onSubmit={async event => {
+          const completed = await submitForm(event, onSubmit, 'receipt-proof', actor);
+          if (completed)
+            setAttachProofTransaction(null);
+        }}>
+          <input type="hidden" name="disbursement_id" value={attachProofTransaction.id}/>
+          <ProofUpload id="attach-receipt-proof" label="Receipt proof image" accept="image/jpeg,image/png" formats="JPG, JPEG, or PNG" required/>
+          <div className="page-modal-actions">
+            <button type="button" onClick={() => setAttachProofTransaction(null)} disabled={busy} className="page-neutral-button page-modal-button">Cancel</button>
+            <button type="submit" disabled={busy} className="page-primary-button page-modal-button">{busy ? 'Attaching…' : 'Attach Proof'}</button>
+          </div>
+        </form>
+      </Modal>}
       <ProofModal key={proofTransaction?.id ?? 'closed'} transaction={proofTransaction} kind="receipt" onClose={() => setProofTransaction(null)}/>
     </div>);
 }

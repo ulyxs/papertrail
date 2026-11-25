@@ -247,7 +247,7 @@ export default function App() {
         setSuccess('');
         try {
             const result = await postAction(action, values, csrfToken);
-            setSuccess(result.voucher_number ? `Funds released as ${result.voucher_number}.` : 'Your change has been saved.');
+            setSuccess(result.message || (result.voucher_number ? `Funds released as ${result.voucher_number}.` : 'Your change has been saved.'));
             try {
                 setDashboard(await loadDashboard());
             }

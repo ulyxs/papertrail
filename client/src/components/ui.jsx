@@ -45,7 +45,7 @@ export function ApiField({ label, name, id = name, type = 'text', placeholder, r
       {hint && <p className="component-field-hint">{hint}</p>}
     </div>);
 }
-export function ProofUpload({ id = 'proof', label = 'Proof of payment (optional)', accept = 'image/jpeg,image/png,image/webp', formats = 'JPEG, PNG, or WebP', }) {
+export function ProofUpload({ id = 'proof', label = 'Proof of payment (optional)', accept = 'image/jpeg,image/png,image/webp', formats = 'JPEG, PNG, or WebP', required = false, }) {
     const inputRef = useRef(null);
     const [preview, setPreview] = useState('');
     useEffect(() => {
@@ -62,7 +62,7 @@ export function ProofUpload({ id = 'proof', label = 'Proof of payment (optional)
     }, [preview]);
     return (<div>
       <label className="component-field-label" htmlFor={id}>{label}</label>
-      <input className="component-field-input component-file-input" ref={inputRef} id={id} name="proof" type="file" accept={accept} onChange={event => setPreview(event.target.files?.[0] ? URL.createObjectURL(event.target.files[0]) : '')}/>
+      <input className="component-field-input component-file-input" ref={inputRef} id={id} name="proof" type="file" accept={accept} required={required} onChange={event => setPreview(event.target.files?.[0] ? URL.createObjectURL(event.target.files[0]) : '')}/>
       <div className="component-proof-preview">
         {preview
             ? <><img src={preview} alt="Selected proof preview" className="component-proof-thumbnail"/><span>Image preview</span></>

@@ -1,3 +1,15 @@
+.component-brand-link {
+  display: inline-flex;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 7px;
+}
+
+.component-brand-link:focus-visible {
+  outline: 2px solid var(--color-link);
+  outline-offset: 2px;
+}
+
 .component-brand-mark {
   width: 42px;
   height: 42px;
