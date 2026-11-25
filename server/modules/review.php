@@ -40,8 +40,8 @@ function handle_review(PDO $db, array $data, array $account): void
     }
 
     $status = $decision === 'flag' ? 'flagged' : 'approved';
-    $update = $db->prepare('UPDATE disbursements SET status = ? WHERE id = ?');
-    $update->execute([$status, $disbursementId]);
+    $update = $db->prepare('UPDATE disbursements SET status = ?, resolution_note = ? WHERE id = ?');
+    $update->execute([$status, $decision === 'resolve' ? $resolutionNote : null, $disbursementId]);
     $actionLabel = [
         'approve' => 'Approved a transaction',
         'flag' => 'Flagged a discrepancy',

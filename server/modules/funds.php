@@ -55,3 +55,44 @@ function handle_funds(PDO $db, array $data, array $account, ?string &$createdPro
     $createdProofPath = null;
     respond(['ok' => true], 201);
 }
+
+function handle_fund_proof(PDO $db, array $data, array $account, ?string &$createdProofPath): void
+{
+    $fundId = filter_var($data['fund_id'] ?? null, FILTER_VALIDATE_INT);
+    if ($fundId === false || $fundId < 1) {
+        throw new InvalidArgumentException('Select a valid fund record.');
+    }
+    if (!isset($_FILES['proof']) || !is_array($_FILES['proof'])) {
+        throw new InvalidArgumentException('Select a proof image to attach.');
+    }
+    $proof = save_proof($_FILES['proof'], 'fund-proofs', PROOF_MIME_TYPES);
+    if ($proof === null) {
+        throw new InvalidArgumentException('Select a proof image to attach.');
+    }
+    $createdProofPath = $proof['storage_path'];
+
+    $db->beginTransaction();
+    $statement = $db->prepare('SELECT source_name, income_category, proof_path FROM funds WHERE id = ? FOR UPDATE');
+    $statement->execute([$fundId]);
+    $fund = $statement->fetch();
+    if (!$fund) {
+        throw new InvalidArgumentException('This fund record could not be found.');
+    }
+    if ($fund['proof_path'] !== null) {
+        throw new InvalidArgumentException('This fund record already has a proof image.');
+    }
+
+    $update = $db->prepare(
+        'UPDATE funds SET proof_path = ?, proof_mime = ?, proof_name = ? WHERE id = ?'
+    );
+    $update->execute([$proof['path'], $proof['mime'], $proof['name'], $fundId]);
+    log_action(
+        $db,
+        account_actor($account),
+        'Attached proof to incoming funds',
+        $fund['source_name'] . ' · ' . $fund['income_category']
+    );
+    $db->commit();
+    $createdProofPath = null;
+    respond(['ok' => true, 'message' => 'Proof attached to the fund record.']);
+}

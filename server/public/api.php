@@ -56,7 +56,7 @@ try {
     }
 
     verify_csrf_token();
-    $data = in_array($action, ['funds', 'receipt'], true) ? $_POST : request_data();
+    $data = in_array($action, ['funds', 'fund-proof', 'receipt', 'receipt-proof'], true) ? $_POST : request_data();
 
     if ($action === 'register') {
         handle_registration($db, $data);
@@ -76,9 +76,11 @@ try {
 
     $rolePermissions = [
         'funds' => ['Treasurer', 'Admin'],
+        'fund-proof' => ['Treasurer', 'Admin'],
         'project' => ['Treasurer', 'Admin'],
         'release' => ['Treasurer', 'Admin'],
         'receipt' => ['Treasurer', 'Admin'],
+        'receipt-proof' => ['Treasurer', 'Admin'],
         'review' => ['Auditor', 'Admin'],
     ];
     if (!isset($rolePermissions[$action])) {
@@ -90,6 +92,9 @@ try {
         'funds' => static function () use ($db, $data, $account, &$createdProofPath): void {
             handle_funds($db, $data, $account, $createdProofPath);
         },
+        'fund-proof' => static function () use ($db, $data, $account, &$createdProofPath): void {
+            handle_fund_proof($db, $data, $account, $createdProofPath);
+        },
         'project' => static function () use ($db, $data, $account): void {
             handle_project($db, $data, $account);
         },
@@ -98,6 +103,9 @@ try {
         },
         'receipt' => static function () use ($db, $data, $account, &$createdProofPath): void {
             handle_receipt($db, $data, $account, $createdProofPath);
+        },
+        'receipt-proof' => static function () use ($db, $data, $account, &$createdProofPath): void {
+            handle_receipt_proof($db, $data, $account, $createdProofPath);
         },
         'review' => static function () use ($db, $data, $account): void {
             handle_review($db, $data, $account);

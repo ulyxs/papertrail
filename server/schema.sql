@@ -81,6 +81,7 @@ CREATE TABLE IF NOT EXISTS disbursements (
   semester ENUM('First Semester', 'Second Semester', 'Summer') NOT NULL,
   month TINYINT UNSIGNED NOT NULL,
   status ENUM('awaiting_receipt', 'for_review', 'flagged', 'approved') NOT NULL DEFAULT 'awaiting_receipt',
+  resolution_note VARCHAR(500) NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT disbursements_person_fk FOREIGN KEY (person_id) REFERENCES people(id),
   CONSTRAINT disbursements_project_fk FOREIGN KEY (project_id) REFERENCES projects(id),

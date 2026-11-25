@@ -59,3 +59,51 @@ function handle_receipt(PDO $db, array $data, array $account, ?string &$createdP
     $createdProofPath = null;
     respond(['ok' => true], 201);
 }
+
+function handle_receipt_proof(PDO $db, array $data, array $account, ?string &$createdProofPath): void
+{
+    $disbursementId = filter_var($data['disbursement_id'] ?? null, FILTER_VALIDATE_INT);
+    if ($disbursementId === false || $disbursementId < 1) {
+        throw new InvalidArgumentException('Select a valid disbursement.');
+    }
+    if (!isset($_FILES['proof']) || !is_array($_FILES['proof'])) {
+        throw new InvalidArgumentException('Select a receipt proof image to attach.');
+    }
+    $proof = save_proof($_FILES['proof'], 'receipt-proofs', RECEIPT_PROOF_MIME_TYPES);
+    if ($proof === null) {
+        throw new InvalidArgumentException('Select a receipt proof image to attach.');
+    }
+    $createdProofPath = $proof['storage_path'];
+
+    $db->beginTransaction();
+    $select = $db->prepare('SELECT voucher_number, status FROM disbursements WHERE id = ? FOR UPDATE');
+    $select->execute([$disbursementId]);
+    $disbursement = $select->fetch();
+    if (!$disbursement || $disbursement['status'] !== 'for_review') {
+        throw new InvalidArgumentException('This disbursement is no longer waiting for receipt review.');
+    }
+
+    $select = $db->prepare('SELECT vendor, proof_path FROM receipts WHERE disbursement_id = ? FOR UPDATE');
+    $select->execute([$disbursementId]);
+    $receipt = $select->fetch();
+    if (!$receipt) {
+        throw new InvalidArgumentException('The submitted receipt could not be found.');
+    }
+    if ($receipt['proof_path'] !== null) {
+        throw new InvalidArgumentException('This receipt already has a proof image.');
+    }
+
+    $update = $db->prepare(
+        'UPDATE receipts SET proof_path = ?, proof_mime = ?, proof_name = ? WHERE disbursement_id = ?'
+    );
+    $update->execute([$proof['path'], $proof['mime'], $proof['name'], $disbursementId]);
+    log_action(
+        $db,
+        account_actor($account),
+        'Attached proof to submitted receipt',
+        $disbursement['voucher_number'] . ' · ' . $receipt['vendor']
+    );
+    $db->commit();
+    $createdProofPath = null;
+    respond(['ok' => true, 'message' => 'Proof attached to the submitted receipt.']);
+}

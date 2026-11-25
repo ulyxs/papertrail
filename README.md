@@ -59,7 +59,7 @@ Database connection settings are read from `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_
 ## Notes
 
 - Projects require a name and start/end dates. Projects with linked vouchers cannot be deleted; archive them instead. Existing voucher/project names are migrated into projects, with dates left unknown rather than guessed.
-- Disbursement receipt submissions record vendor, reference, amount, date, and an optional note. They may also include a JPG/JPEG or PNG proof image up to 5 MB.
-- Incoming funds may include a JPEG, PNG, or WebP proof image up to 5 MB. Proofs are stored under `server/storage` outside the public web root and viewed through the API. Ensure PHP can write to `server/storage`, and configure `upload_max_filesize` to at least `5M` and `post_max_size` to at least `8M` in `php.ini`.
-- A mismatched receipt must be flagged; a flagged record can be cleared only after an auditor records how it was resolved.
+- Disbursement receipt submissions record vendor, reference, amount, date, and an optional note. They may also include a JPG/JPEG or PNG proof image up to 5 MB; Treasurers and Admins can attach proof later to a submitted receipt that has none.
+- Incoming funds may include a JPEG, PNG, or WebP proof image up to 5 MB when recorded; Treasurers and Admins can also attach proof later to a fund record that has none. Proofs are stored under `server/storage` outside the public web root and viewed through the API. Ensure PHP can write to `server/storage`, and configure `upload_max_filesize` to at least `5M` and `post_max_size` to at least `8M` in `php.ini`.
+- A mismatched receipt must be flagged; a flagged record can be cleared only after an auditor records how it was resolved. Resolution notes are retained on the transaction and shown in its financial report.
 - Before public deployment or use with real financial records, add login rate limiting, configure HTTPS and secure database credentials, and review the hosting environment's error handling and storage permissions.

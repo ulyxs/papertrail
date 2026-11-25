@@ -30,6 +30,16 @@ function database_connection(): PDO
 
     $columns = $db->query("SHOW COLUMNS FROM disbursements")->fetchAll();
     $columnNames = array_column($columns, 'Field');
+    if (!in_array('resolution_note', $columnNames, true)) {
+        $db->exec("ALTER TABLE disbursements
+            ADD COLUMN resolution_note VARCHAR(500) NULL AFTER status");
+        $db->exec("UPDATE disbursements d
+            JOIN audit_log a
+              ON a.action = 'Resolved a flagged transaction'
+             AND LEFT(a.detail, CHAR_LENGTH(d.voucher_number) + 3) = CONCAT(d.voucher_number, ' · ')
+            SET d.resolution_note = SUBSTRING(a.detail, CHAR_LENGTH(d.voucher_number) + 4)
+            WHERE d.resolution_note IS NULL");
+    }
     $needsUpgrade = false;
     if (!in_array('semester', $columnNames, true)) {
         $db->exec("ALTER TABLE disbursements
