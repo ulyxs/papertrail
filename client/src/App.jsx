@@ -338,7 +338,9 @@ export default function App() {
                 }} style={{ marginLeft: 12, border: 'none', background: 'transparent', color: c.link, cursor: 'pointer', textDecoration: 'underline' }}>Retry</button>}
           </div>}
           {success && <div role="status" style={{ marginBottom: 16, padding: '12px 16px', background: '#eff8f0', border: '1px solid #b7d8bd', borderRadius: 4, color: c.greenBar }}>{success}</div>}
-          {pageContent}
+          <div className="page-content" key={currentPage}>
+            {pageContent}
+          </div>
         </main>
       </div>
     </div>);
