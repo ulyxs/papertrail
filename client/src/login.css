@@ -22,11 +22,8 @@
   margin: 0;
   font-family: var(--sans);
   background:
-    linear-gradient(
-      90deg,
-      var(--midnight-blue) 0 34%,
-      var(--powder-sky) 34% 100%
-    );
+    linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)),
+    url("/loginbg.jpeg") center / cover no-repeat;
   color: var(--midnight-blue);
 }
 
@@ -82,14 +79,16 @@
   position: relative;
   z-index: 1;
   display: grid;
-  width: min(1080px, 100%);
-  min-height: 660px;
+  width: min(980px, 100%);
+  min-height: 620px;
   grid-template-columns: 0.9fr 1.1fr;
   overflow: hidden;
   border: 1px solid var(--calm-ocean);
   border-radius: 12px;
   background: var(--white);
-  box-shadow: 0 26px 80px rgba(36, 58, 94, 0.2);
+  box-shadow:
+    0 24px 60px rgba(36, 58, 94, 0.38),
+    0 8px 20px rgba(36, 58, 94, 0.18);
 }
 
 .auth-intro {
@@ -433,7 +432,9 @@
 
 @media (max-width: 860px) {
   .auth-page {
-    background: var(--powder-sky);
+    background:
+      linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)),
+      url("/loginbg.jpeg") center / cover no-repeat;
   }
 
   .auth-shell {
