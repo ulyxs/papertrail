@@ -5,11 +5,18 @@ import { usePagination } from '../hooks/usePagination';
 import Pagination from '../components/Pagination';
 import TableControls, { TableSortHeader } from '../components/TableControls';
 import { useTableControls } from '../hooks/useTableControls';
+import TableContainer from '../components/TableContainer';
+
+const DISBURSEMENT_SEARCH_FIELDS = [
+    'id', 'voucher_number', 'purpose', 'accountable', 'project',
+    'receipt_vendor', 'receipt_reference', 'receipt_note', 'amount', 'receipt_amount',
+];
+
 export default function DisbursementsPage({ dashboard }) {
     const { disbursements } = dashboard;
     const [proofTransaction, setProofTransaction] = useState(null);
     const disbursementControls = useTableControls(disbursements, {
-        searchFields: ['id', 'voucher_number', 'purpose', 'accountable', 'project', 'receipt_vendor', 'receipt_reference', 'receipt_note', 'amount', 'receipt_amount'],
+        searchFields: DISBURSEMENT_SEARCH_FIELDS,
         dateField: 'released_on',
         statusField: 'status',
         defaultSort: 'due_on',
@@ -26,7 +33,7 @@ export default function DisbursementsPage({ dashboard }) {
             { value: 'flagged', label: 'Flagged' },
             { value: 'approved', label: 'Approved' },
         ]}/>
-        <div className="ledger-table-scroll">
+        <TableContainer>
           <div className="page-disbursement-table">
             <div className="page-disbursement-header">
               {[
@@ -76,7 +83,7 @@ export default function DisbursementsPage({ dashboard }) {
                 </div>);
         })}
           </div>
-        </div>
+        </TableContainer>
         <Pagination pagination={disbursementPagination}/>
       </Panel>
       <ProofModal key={proofTransaction?.id ?? 'closed'} transaction={proofTransaction} kind="receipt" onClose={() => setProofTransaction(null)}/>

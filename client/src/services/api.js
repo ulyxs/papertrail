@@ -6,9 +6,8 @@ export class ApiError extends Error {
         this.name = 'ApiError';
     }
 }
-export async function loadDashboard() {
-    // Avoid showing stale financial records after submissions or account changes.
-    const response = await fetch('/api.php', { cache: 'no-store' });
+
+async function parseApiResponse(response, fallbackMessage) {
     const text = await response.text();
     let result;
     try {
@@ -18,24 +17,19 @@ export async function loadDashboard() {
         throw new Error('The PHP API did not return JSON. Check that the PHP server is running.');
     }
     if (!response.ok) {
-        throw new ApiError(result.error || 'Could not load the ledger.', response.status);
+        throw new ApiError(result?.error || fallbackMessage, response.status);
     }
     return result;
 }
+
+export async function loadDashboard() {
+    // Avoid showing stale financial records after submissions or account changes.
+    const response = await fetch('/api.php', { cache: 'no-store' });
+    return parseApiResponse(response, 'Could not load the ledger.');
+}
 export async function loadAuthState() {
     const response = await fetch('/api.php?action=auth-status', { cache: 'no-store' });
-    const text = await response.text();
-    let result;
-    try {
-        result = JSON.parse(text);
-    }
-    catch {
-        throw new Error('The PHP API did not return JSON. Check that the PHP server is running.');
-    }
-    if (!response.ok) {
-        throw new ApiError(result.error || 'Could not check the login session.', response.status);
-    }
-    return result;
+    return parseApiResponse(response, 'Could not check the login session.');
 }
 export async function postAuthAction(action, values, csrfToken) {
     const response = await fetch(`/api.php?action=${encodeURIComponent(action)}`, {
@@ -46,18 +40,7 @@ export async function postAuthAction(action, values, csrfToken) {
         },
         body: JSON.stringify(values),
     });
-    const text = await response.text();
-    let result;
-    try {
-        result = JSON.parse(text);
-    }
-    catch {
-        throw new Error('The PHP API did not return JSON. Check that the PHP server is running.');
-    }
-    if (!response.ok) {
-        throw new ApiError(result.error || 'Could not complete the request.', response.status);
-    }
-    return result;
+    return parseApiResponse(response, 'Could not complete the request.');
 }
 export async function postAction(action, values, csrfToken) {
     let body;
@@ -86,16 +69,5 @@ export async function postAction(action, values, csrfToken) {
         headers,
         body,
     });
-    const text = await response.text();
-    let result;
-    try {
-        result = JSON.parse(text);
-    }
-    catch {
-        throw new Error('The PHP API did not return JSON. Check that the PHP server is running.');
-    }
-    if (!response.ok) {
-        throw new ApiError(result.error || 'Could not save this change.', response.status);
-    }
-    return result;
+    return parseApiResponse(response, 'Could not save this change.');
 }

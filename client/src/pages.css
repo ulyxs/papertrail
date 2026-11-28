@@ -265,26 +265,6 @@
   min-width: 250px;
 }
 
-.page-text-green {
-  color: var(--color-green);
-}
-
-.page-text-amber {
-  color: var(--color-amber);
-}
-
-.page-text-overdue {
-  color: var(--color-overdue);
-}
-
-.page-text-muted {
-  color: var(--color-muted);
-}
-
-.page-text-regular {
-  color: var(--color-text);
-}
-
 .page-medium {
   font-weight: 500;
 }
@@ -891,25 +871,10 @@
   box-sizing: border-box;
 }
 
-.page-account-edit {
-  flex-basis: 100%;
-}
-
-.page-account-edit summary,
-.page-project-create summary,
-.page-project-edit summary {
+.page-project-create summary {
   cursor: pointer;
   color: var(--color-link);
   font-weight: 500;
-}
-
-.page-account-edit summary,
-.page-project-edit summary {
-  font-size: 12px;
-}
-
-.page-account-edit-form {
-  padding-top: 12px;
 }
 
 .page-review-table {
@@ -1142,30 +1107,6 @@
   margin-bottom: 16px;
 }
 
-.page-audit-row {
-  display: grid;
-  grid-template-columns: 160px 1fr;
-  gap: 16px;
-  padding: 14px 20px;
-  border-top: 1px solid var(--color-border-light);
-}
-
-.page-audit-date {
-  padding-top: 1px;
-  color: var(--color-muted);
-  font-size: 12px;
-}
-
-.page-audit-actor {
-  font-weight: 500;
-}
-
-.page-audit-detail {
-  margin-top: 2px;
-  color: var(--color-muted);
-  font-size: 12px;
-}
-
 .page-funds-form {
   padding: 20px;
 }
@@ -1373,10 +1314,6 @@
   padding: 16px 0 4px;
 }
 
-.page-project-form--edit {
-  padding-top: 12px;
-}
-
 .page-project-form-grid {
   margin-bottom: 14px;
 }
@@ -1441,10 +1378,6 @@
   margin-top: 6px;
   color: var(--color-muted);
   font-size: 11px;
-}
-
-.page-project-edit {
-  margin-top: 8px;
 }
 
 .page-archived-project {

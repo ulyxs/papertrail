@@ -2,6 +2,7 @@ import { PageHeader, Panel, PanelHeader, StatusDot, DeadlineBar, EmptyState } fr
 import { money, cents, formatDate, daysUntil } from '../utils/formatters';
 import { usePagination } from '../hooks/usePagination';
 import Pagination from '../components/Pagination';
+import TableContainer from '../components/TableContainer';
 export default function OverviewPage({ dashboard }) {
     const { summary, disbursements } = dashboard;
     const waiting = disbursements.filter(record => record.status === 'for_review');
@@ -26,7 +27,7 @@ export default function OverviewPage({ dashboard }) {
       {/* Liquidation clock */}
       <Panel>
         <PanelHeader title="Liquidation Clock" right="Seven days from release, counted from the date the cash left the ledger"/>
-        <div className="ledger-table-scroll">
+        <TableContainer>
           <div className="page-overview-table page-overview-table--outstanding">
             <div className="page-overview-header">
               {['Voucher', 'Held by', 'Amount', 'Released', 'Time left'].map(h => (<span key={h}>{h}</span>))}
@@ -46,13 +47,13 @@ export default function OverviewPage({ dashboard }) {
                 </div>);
         })}
           </div>
-        </div>
+        </TableContainer>
       </Panel>
 
       {/* Waiting on auditor */}
       <Panel>
         <PanelHeader title="Waiting on the Auditor" right={`${waiting.length} transaction(s) with receipts submitted`}/>
-        <div className="ledger-table-scroll">
+        <TableContainer>
           <div className="page-overview-table page-overview-table--waiting">
             <div className="page-overview-header">
               {['Voucher', 'Receipt', 'Released', 'Receipted', 'Status'].map(h => (<span key={h}>{h}</span>))}
@@ -74,7 +75,7 @@ export default function OverviewPage({ dashboard }) {
                 </span>
               </div>))}
           </div>
-        </div>
+        </TableContainer>
         <Pagination pagination={waitingPagination}/>
       </Panel>
 

@@ -43,7 +43,7 @@ function load_dashboard(PDO $db, array $account): array
                     WHERE d.person_id = p.id AND (
                         d.status = 'flagged'
                         OR (d.status = 'awaiting_receipt'
-                            AND DATE_ADD(d.released_on, INTERVAL 7 DAY) < CURRENT_DATE())
+                            AND d.released_on < CURRENT_DATE() - INTERVAL 7 DAY)
                     )
                 ) AS blocked
          FROM people p
@@ -64,16 +64,16 @@ function load_dashboard(PDO $db, array $account): array
             COALESCE((SELECT SUM(amount) FROM disbursements WHERE status <> 'approved'), 0) AS outstanding,
             COALESCE((SELECT SUM(amount) FROM disbursements
                 WHERE status = 'awaiting_receipt'
-                AND DATE_ADD(released_on, INTERVAL 7 DAY) < CURRENT_DATE()), 0) AS overdue,
+                AND released_on < CURRENT_DATE() - INTERVAL 7 DAY), 0) AS overdue,
             (SELECT COUNT(*) FROM disbursements WHERE status = 'for_review') AS review_count,
             (SELECT COUNT(*) FROM disbursements WHERE status = 'awaiting_receipt') AS outstanding_count,
             (SELECT COUNT(*) FROM disbursements
                 WHERE status = 'awaiting_receipt'
-                AND DATE_ADD(released_on, INTERVAL 7 DAY) < CURRENT_DATE()) AS overdue_count,
+                AND released_on < CURRENT_DATE() - INTERVAL 7 DAY) AS overdue_count,
             (SELECT COUNT(DISTINCT person_id) FROM disbursements
                 WHERE status = 'flagged'
                 OR (status = 'awaiting_receipt'
-                    AND DATE_ADD(released_on, INTERVAL 7 DAY) < CURRENT_DATE())) AS blocked_people"
+                    AND released_on < CURRENT_DATE() - INTERVAL 7 DAY)) AS blocked_people"
     )->fetch();
 
     return [

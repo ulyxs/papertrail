@@ -7,6 +7,24 @@ import Pagination from '../components/Pagination';
 import TableContainer from '../components/TableContainer';
 import TableControls, { TableSortHeader } from '../components/TableControls';
 import { useTableControls } from '../hooks/useTableControls';
+import { handleTabListKeyDown } from '../utils/tabKeyboard';
+
+const REVIEW_SEARCH_FIELDS = [
+    'id', 'voucher_number', 'purpose', 'project', 'accountable',
+    'receipt_vendor', 'receipt_reference', 'receipt_note', 'amount', 'receipt_amount',
+];
+
+function ReceiptProofButton({ record, onView }) {
+    return (<div>
+      <button type="button" onClick={() => onView(record)} className="page-proof-button page-cell-nowrap">
+        View Receipt
+      </button>
+      <div className="page-proof-note page-proof-filename" title={Number(record.has_receipt_proof) === 1 ? (record.receipt_proof_name || 'Image uploaded') : undefined}>
+        {Number(record.has_receipt_proof) === 1 ? (record.receipt_proof_name || 'Image uploaded') : 'No proof uploaded'}
+      </div>
+    </div>);
+}
+
 export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
     const pending = dashboard.disbursements.filter(record => record.status === 'for_review');
     const flagged = dashboard.disbursements.filter(record => record.status === 'flagged');
@@ -14,52 +32,28 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
     const [resolutionTransaction, setResolutionTransaction] = useState(null);
     const [activeTab, setActiveTab] = useState('pending');
     const pendingControls = useTableControls(pending, {
-        searchFields: ['id', 'voucher_number', 'purpose', 'project', 'accountable', 'receipt_vendor', 'receipt_reference', 'receipt_note', 'amount', 'receipt_amount'],
+        searchFields: REVIEW_SEARCH_FIELDS,
         dateField: 'receipt_submitted_on',
         defaultSort: 'receipt_submitted_on',
         defaultDirection: 'desc',
     });
     const flaggedControls = useTableControls(flagged, {
-        searchFields: ['id', 'voucher_number', 'purpose', 'project', 'accountable', 'receipt_vendor', 'receipt_reference', 'receipt_note', 'amount', 'receipt_amount'],
+        searchFields: REVIEW_SEARCH_FIELDS,
         dateField: 'receipt_submitted_on',
         defaultSort: 'receipt_submitted_on',
         defaultDirection: 'desc',
     });
     const pendingPagination = usePagination(pendingControls.records, 10, pendingControls.resetKey);
     const flaggedPagination = usePagination(flaggedControls.records, 10, flaggedControls.resetKey);
-    function handleTabKeyDown(event) {
-        const tabs = Array.from(event.currentTarget.parentElement.querySelectorAll('[role="tab"]'));
-        const currentIndex = tabs.indexOf(event.currentTarget);
-        const nextIndex = event.key === 'Home' ? 0
-            : event.key === 'End' ? tabs.length - 1
-                : event.key === 'ArrowRight' ? (currentIndex + 1) % tabs.length
-                    : event.key === 'ArrowLeft' ? (currentIndex - 1 + tabs.length) % tabs.length
-                        : currentIndex;
-        if (nextIndex !== currentIndex) {
-            event.preventDefault();
-            tabs[nextIndex].focus();
-            tabs[nextIndex].click();
-        }
-    }
-    function ReceiptProofButton({ record }) {
-        return (<div>
-        <button type="button" onClick={() => setProofTransaction(record)} className="page-proof-button page-cell-nowrap">
-          View Receipt
-        </button>
-        <div className="page-proof-note page-proof-filename" title={Number(record.has_receipt_proof) === 1 ? (record.receipt_proof_name || 'Image uploaded') : undefined}>
-          {Number(record.has_receipt_proof) === 1 ? (record.receipt_proof_name || 'Image uploaded') : 'No proof uploaded'}
-        </div>
-      </div>);
-    }
     return (<div>
       <PageHeader title="Review Queue"/>
       <Panel>
         <div className="page-funds-tabs" role="tablist" aria-label="Review queue">
-          <button id="review-tab-pending" type="button" role="tab" className={`page-funds-tab${activeTab === 'pending' ? ' is-active' : ''}`} aria-selected={activeTab === 'pending'} aria-controls="review-panel-pending" tabIndex={activeTab === 'pending' ? 0 : -1} onClick={() => setActiveTab('pending')} onKeyDown={handleTabKeyDown}>
+          <button id="review-tab-pending" type="button" role="tab" className={`page-funds-tab${activeTab === 'pending' ? ' is-active' : ''}`} aria-selected={activeTab === 'pending'} aria-controls="review-panel-pending" tabIndex={activeTab === 'pending' ? 0 : -1} onClick={() => setActiveTab('pending')} onKeyDown={handleTabListKeyDown}>
             Pending Decisions
             <span className="page-funds-tab-count">{pending.length}</span>
           </button>
-          <button id="review-tab-flagged" type="button" role="tab" className={`page-funds-tab${activeTab === 'flagged' ? ' is-active' : ''}`} aria-selected={activeTab === 'flagged'} aria-controls="review-panel-flagged" tabIndex={activeTab === 'flagged' ? 0 : -1} onClick={() => setActiveTab('flagged')} onKeyDown={handleTabKeyDown}>
+          <button id="review-tab-flagged" type="button" role="tab" className={`page-funds-tab${activeTab === 'flagged' ? ' is-active' : ''}`} aria-selected={activeTab === 'flagged'} aria-controls="review-panel-flagged" tabIndex={activeTab === 'flagged' ? 0 : -1} onClick={() => setActiveTab('flagged')} onKeyDown={handleTabListKeyDown}>
             Flagged Transactions
             <span className="page-funds-tab-count">{flagged.length}</span>
           </button>
@@ -114,7 +108,7 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
                         <td className={`page-review-money-column page-review-difference${differenceCents ? ' overdue' : ''}`}>
                           {differenceCents === 0 ? 'Exact' : money(differenceCents / 100)}
                         </td>
-                        <td><ReceiptProofButton record={record}/></td>
+                        <td><ReceiptProofButton record={record} onView={setProofTransaction}/></td>
                         <td>
                           <div className="page-review-actions">
                             <button type="button" disabled={busy || differenceCents !== 0} onClick={() => onSubmit('review', { disbursement_id: record.id, decision: 'approve', actor })} className={`page-primary-button page-review-approve${differenceCents !== 0 ? ' has-difference' : ''}`}>
@@ -176,7 +170,7 @@ export default function ReviewPage({ dashboard, onSubmit, busy, actor, }) {
                       </td>
                       <td className="page-review-money-column">{money(record.amount)}</td>
                       <td className="page-review-money-column">{money(record.receipt_amount)}</td>
-                      <td><ReceiptProofButton record={record}/></td>
+                      <td><ReceiptProofButton record={record} onView={setProofTransaction}/></td>
                       <td>
                         <button type="button" disabled={busy} onClick={() => setResolutionTransaction(record)} className="page-primary-button page-cell-nowrap">
                             Resolve

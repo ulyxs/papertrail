@@ -241,13 +241,13 @@ export default function App() {
             setAuthError(`${message} ${sessionError.message}`);
         }
     }
-    async function handleSubmit(action, values) {
+    async function submitAndRefresh(action, values, successMessage) {
         setBusy(true);
         setError('');
         setSuccess('');
         try {
             const result = await postAction(action, values, csrfToken);
-            setSuccess(result.message || (result.voucher_number ? `Funds released as ${result.voucher_number}.` : 'Your change has been saved.'));
+            setSuccess(successMessage || result.message || (result.voucher_number ? `Funds released as ${result.voucher_number}.` : 'Your change has been saved.'));
             try {
                 setDashboard(await loadDashboard());
             }
@@ -270,34 +270,16 @@ export default function App() {
             setBusy(false);
         }
     }
-    async function handleReview(action, values) {
-        setBusy(true);
-        setError('');
-        setSuccess('');
-        try {
-            await postAction(action, values, csrfToken);
-            setSuccess(values.decision === 'approve' ? 'The transaction was approved.' : values.decision === 'resolve' ? 'The flagged transaction was resolved.' : 'The discrepancy was flagged.');
-            try {
-                setDashboard(await loadDashboard());
-            }
-            catch (refreshError) {
-                if (refreshError.status === 401)
-                    handleSessionExpired(refreshError.message);
-                else
-                    setError(`Saved successfully, but the latest ledger could not be loaded: ${refreshError.message}`);
-            }
-            return true;
-        }
-        catch (reviewError) {
-            if (reviewError.status === 401)
-                handleSessionExpired(reviewError.message);
-            else
-                setError(reviewError.message);
-            return false;
-        }
-        finally {
-            setBusy(false);
-        }
+    function handleSubmit(action, values) {
+        return submitAndRefresh(action, values);
+    }
+    function handleReview(action, values) {
+        const successMessage = values.decision === 'approve'
+            ? 'The transaction was approved.'
+            : values.decision === 'resolve'
+                ? 'The flagged transaction was resolved.'
+                : 'The discrepancy was flagged.';
+        return submitAndRefresh(action, values, successMessage);
     }
     if (!user) {
         return <AuthPage csrfToken={csrfToken} busy={authBusy} error={authError} success={authSuccess} onLogin={handleLogin} onRegister={handleRegister} onRetry={retryAuthentication}/>;

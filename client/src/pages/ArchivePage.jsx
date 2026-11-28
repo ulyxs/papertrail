@@ -65,14 +65,16 @@ function ProjectArchiveFolder({ name, records, pendingRecords }) {
     </div>);
 }
 export default function ArchivePage({ dashboard }) {
-    const now = new Date();
-    const currentMonth = now.getMonth() + 1;
-    const currentSemester = currentMonth >= 8
-        ? 'First Semester'
-        : (currentMonth <= 5 ? 'Second Semester' : 'Summer');
+    const [periodDefaults] = useState(() => {
+        const currentMonth = new Date().getMonth() + 1;
+        const currentSemester = currentMonth >= 8
+            ? 'First Semester'
+            : (currentMonth <= 5 ? 'Second Semester' : 'Summer');
+        return { currentMonth, currentSemester };
+    });
     const [projectSearch, setProjectSearch] = useState('');
-    const [semester, setSemester] = useState(currentSemester);
-    const [month, setMonth] = useState(String(currentMonth));
+    const [semester, setSemester] = useState(periodDefaults.currentSemester);
+    const [month, setMonth] = useState(String(periodDefaults.currentMonth));
     const months = [
         ['', 'All months'], ['1', 'January'], ['2', 'February'], ['3', 'March'], ['4', 'April'], ['5', 'May'],
         ['6', 'June'], ['7', 'July'], ['8', 'August'], ['9', 'September'], ['10', 'October'],

@@ -1,7 +1,8 @@
-export const money = (value) => new Intl.NumberFormat('en-PH', {
+const phpCurrencyFormatter = new Intl.NumberFormat('en-PH', {
     style: 'currency',
     currency: 'PHP',
-}).format(Number(value) || 0);
+});
+export const money = (value) => phpCurrencyFormatter.format(Number(value) || 0);
 // Compare and display money at cent precision instead of relying on float equality.
 export const cents = (value) => Math.round((Number(value) || 0) * 100);
 export const today = () => {

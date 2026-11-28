@@ -115,7 +115,8 @@ textarea:focus {
   width: 1126px;
   max-width: 100%;
   margin: 0 auto;
-  text-align: center;
+  text-align: left;
+  line-height: 1.4;
   border-inline: 1px solid var(--border);
   min-height: 100svh;
   display: flex;
@@ -150,12 +151,6 @@ h2 {
 }
 p {
   margin: 0;
-}
-
-/* ───── Alignment fix ───── */
-#root {
-  text-align: left;
-  line-height: 1.4;
 }
 
 /* ───── Layout ───── */
@@ -295,7 +290,6 @@ p {
     cursor: pointer;
   }
 
-  .menu-btn { width: 34px; height: 34px; }
   .main { padding: 24px 20px; }
 }
 

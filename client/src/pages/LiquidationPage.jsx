@@ -6,6 +6,15 @@ import { usePagination } from '../hooks/usePagination';
 import Pagination from '../components/Pagination';
 import TableControls, { TableSortHeader } from '../components/TableControls';
 import { useTableControls } from '../hooks/useTableControls';
+import TableContainer from '../components/TableContainer';
+import { handleTabListKeyDown } from '../utils/tabKeyboard';
+
+const OWED_SEARCH_FIELDS = ['id', 'voucher_number', 'purpose', 'accountable', 'project', 'amount'];
+const WAITING_SEARCH_FIELDS = [
+    'id', 'voucher_number', 'purpose', 'accountable', 'project',
+    'receipt_vendor', 'receipt_reference', 'receipt_note', 'amount', 'receipt_amount',
+];
+
 export default function LiquidationPage({ dashboard, onSubmit, busy, actor, canSubmitReceipt, }) {
     const { disbursements } = dashboard;
     const owed = disbursements.filter(record => record.status === 'awaiting_receipt');
@@ -15,50 +24,36 @@ export default function LiquidationPage({ dashboard, onSubmit, busy, actor, canS
     const [attachProofTransaction, setAttachProofTransaction] = useState(null);
     const [activeTab, setActiveTab] = useState('owed');
     const owedControls = useTableControls(owed, {
-        searchFields: ['id', 'voucher_number', 'purpose', 'accountable', 'project', 'amount'],
+        searchFields: OWED_SEARCH_FIELDS,
         dateField: 'due_on',
         defaultSort: 'due_on',
         defaultDirection: 'desc',
     });
     const waitingControls = useTableControls(waiting, {
-        searchFields: ['id', 'voucher_number', 'purpose', 'accountable', 'project', 'receipt_vendor', 'receipt_reference', 'receipt_note', 'amount', 'receipt_amount'],
+        searchFields: WAITING_SEARCH_FIELDS,
         dateField: 'receipt_submitted_on',
         defaultSort: 'receipt_submitted_on',
         defaultDirection: 'desc',
     });
     const owedPagination = usePagination(owedControls.records, 10, owedControls.resetKey);
     const waitingPagination = usePagination(waitingControls.records, 10, waitingControls.resetKey);
-    function handleTabKeyDown(event) {
-        const tabs = Array.from(event.currentTarget.parentElement.querySelectorAll('[role="tab"]'));
-        const currentIndex = tabs.indexOf(event.currentTarget);
-        const nextIndex = event.key === 'Home' ? 0
-            : event.key === 'End' ? tabs.length - 1
-                : event.key === 'ArrowRight' ? (currentIndex + 1) % tabs.length
-                    : event.key === 'ArrowLeft' ? (currentIndex - 1 + tabs.length) % tabs.length
-                        : currentIndex;
-        if (nextIndex !== currentIndex) {
-            event.preventDefault();
-            tabs[nextIndex].focus();
-            tabs[nextIndex].click();
-        }
-    }
     return (<div>
       <PageHeader title="Liquidation"/>
 
       <Panel>
         <div className="page-funds-tabs" role="tablist" aria-label="Liquidation records">
-          <button id="liquidation-tab-owed" type="button" role="tab" className={`page-funds-tab${activeTab === 'owed' ? ' is-active' : ''}`} aria-selected={activeTab === 'owed'} aria-controls="liquidation-panel-owed" tabIndex={activeTab === 'owed' ? 0 : -1} onClick={() => setActiveTab('owed')} onKeyDown={handleTabKeyDown}>
+          <button id="liquidation-tab-owed" type="button" role="tab" className={`page-funds-tab${activeTab === 'owed' ? ' is-active' : ''}`} aria-selected={activeTab === 'owed'} aria-controls="liquidation-panel-owed" tabIndex={activeTab === 'owed' ? 0 : -1} onClick={() => setActiveTab('owed')} onKeyDown={handleTabListKeyDown}>
             Receipts Owed
             <span className="page-funds-tab-count">{owed.length}</span>
           </button>
-          <button id="liquidation-tab-waiting" type="button" role="tab" className={`page-funds-tab${activeTab === 'waiting' ? ' is-active' : ''}`} aria-selected={activeTab === 'waiting'} aria-controls="liquidation-panel-waiting" tabIndex={activeTab === 'waiting' ? 0 : -1} onClick={() => setActiveTab('waiting')} onKeyDown={handleTabKeyDown}>
+          <button id="liquidation-tab-waiting" type="button" role="tab" className={`page-funds-tab${activeTab === 'waiting' ? ' is-active' : ''}`} aria-selected={activeTab === 'waiting'} aria-controls="liquidation-panel-waiting" tabIndex={activeTab === 'waiting' ? 0 : -1} onClick={() => setActiveTab('waiting')} onKeyDown={handleTabListKeyDown}>
             Submitted
             <span className="page-funds-tab-count">{waiting.length}</span>
           </button>
         </div>
         <div id="liquidation-panel-owed" role="tabpanel" aria-labelledby="liquidation-tab-owed" hidden={activeTab !== 'owed'}>
         <TableControls id="receipts-owed" controls={owedControls} dateLabel="Deadline"/>
-        <div className="ledger-table-scroll">
+        <TableContainer>
           <div className="page-liquidation-table page-liquidation-table--owed">
             <div className="page-liquidation-header">
               {[
@@ -88,13 +83,13 @@ export default function LiquidationPage({ dashboard, onSubmit, busy, actor, canS
                 </div>);
         })}
           </div>
-        </div>
+        </TableContainer>
         <Pagination pagination={owedPagination}/>
         </div>
 
         <div id="liquidation-panel-waiting" role="tabpanel" aria-labelledby="liquidation-tab-waiting" hidden={activeTab !== 'waiting'}>
         <TableControls id="submitted-receipts" controls={waitingControls} dateLabel="Submitted"/>
-        <div className="ledger-table-scroll">
+        <TableContainer>
           <div className="page-liquidation-table page-liquidation-table--waiting">
             <div className="page-liquidation-header">
               {[
@@ -133,7 +128,7 @@ export default function LiquidationPage({ dashboard, onSubmit, busy, actor, canS
                 </div>);
         })}
           </div>
-        </div>
+        </TableContainer>
         <Pagination pagination={waitingPagination}/>
         </div>
       </Panel>

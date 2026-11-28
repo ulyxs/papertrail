@@ -52,7 +52,7 @@ function handle_release(PDO $db, array $data, array $account): void
          WHERE person_id = ? AND (
             status = 'flagged'
             OR (status = 'awaiting_receipt'
-                AND DATE_ADD(released_on, INTERVAL 7 DAY) < CURRENT_DATE())
+                AND released_on < CURRENT_DATE() - INTERVAL 7 DAY)
          )"
     );
     $blocked->execute([$personId]);

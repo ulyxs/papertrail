@@ -6,13 +6,18 @@ import { usePagination } from '../hooks/usePagination';
 import Pagination from '../components/Pagination';
 import TableControls, { TableSortHeader } from '../components/TableControls';
 import { useTableControls } from '../hooks/useTableControls';
+import TableContainer from '../components/TableContainer';
+import { handleTabListKeyDown } from '../utils/tabKeyboard';
+
+const FUNDS_SEARCH_FIELDS = ['id', 'source_name', 'income_category', 'note', 'received_on', 'amount'];
+
 export default function FundsPage({ dashboard, onSubmit, busy, actor, canManage, }) {
     const { funds } = dashboard;
     const [proofFund, setProofFund] = useState(null);
     const [attachProofFund, setAttachProofFund] = useState(null);
     const [activeFolder, setActiveFolder] = useState(canManage ? 'record' : 'ledger');
     const fundsControls = useTableControls(funds, {
-        searchFields: ['id', 'source_name', 'income_category', 'note', 'received_on', 'amount'],
+        searchFields: FUNDS_SEARCH_FIELDS,
         dateField: 'received_on',
         categoryField: 'income_category',
         defaultSort: 'received_on',
@@ -28,29 +33,15 @@ export default function FundsPage({ dashboard, onSubmit, busy, actor, canManage,
         'Grants',
         'Others',
     ];
-    function handleTabKeyDown(event) {
-        const tabs = Array.from(event.currentTarget.parentElement.querySelectorAll('[role="tab"]'));
-        const currentIndex = tabs.indexOf(event.currentTarget);
-        const nextIndex = event.key === 'Home' ? 0
-            : event.key === 'End' ? tabs.length - 1
-                : event.key === 'ArrowRight' ? (currentIndex + 1) % tabs.length
-                    : event.key === 'ArrowLeft' ? (currentIndex - 1 + tabs.length) % tabs.length
-                        : currentIndex;
-        if (nextIndex !== currentIndex) {
-            event.preventDefault();
-            tabs[nextIndex].focus();
-            tabs[nextIndex].click();
-        }
-    }
     return (<div>
       <PageHeader title="Funds Received"/>
 
       <Panel>
         <div className={`page-funds-tabs${canManage ? '' : ' is-single'}`} role="tablist" aria-label="Funds Received">
-          {canManage && <button id="funds-tab-record" type="button" role="tab" className={`page-funds-tab${activeFolder === 'record' ? ' is-active' : ''}`} aria-selected={activeFolder === 'record'} aria-controls="funds-panel-record" tabIndex={activeFolder === 'record' ? 0 : -1} onClick={() => setActiveFolder('record')} onKeyDown={handleTabKeyDown}>
+          {canManage && <button id="funds-tab-record" type="button" role="tab" className={`page-funds-tab${activeFolder === 'record' ? ' is-active' : ''}`} aria-selected={activeFolder === 'record'} aria-controls="funds-panel-record" tabIndex={activeFolder === 'record' ? 0 : -1} onClick={() => setActiveFolder('record')} onKeyDown={handleTabListKeyDown}>
             Record Money
           </button>}
-          <button id="funds-tab-ledger" type="button" role="tab" className={`page-funds-tab${activeFolder === 'ledger' ? ' is-active' : ''}`} aria-selected={activeFolder === 'ledger'} aria-controls="funds-panel-ledger" tabIndex={activeFolder === 'ledger' ? 0 : -1} onClick={() => setActiveFolder('ledger')} onKeyDown={handleTabKeyDown}>
+          <button id="funds-tab-ledger" type="button" role="tab" className={`page-funds-tab${activeFolder === 'ledger' ? ' is-active' : ''}`} aria-selected={activeFolder === 'ledger'} aria-controls="funds-panel-ledger" tabIndex={activeFolder === 'ledger' ? 0 : -1} onClick={() => setActiveFolder('ledger')} onKeyDown={handleTabListKeyDown}>
             Receipts Ledger
             <span className="page-funds-tab-count">{funds.length}</span>
           </button>
@@ -89,7 +80,7 @@ export default function FundsPage({ dashboard, onSubmit, busy, actor, canManage,
         <div id="funds-panel-ledger" role="tabpanel" aria-labelledby="funds-tab-ledger" hidden={activeFolder !== 'ledger'}>
         <div className="page-funds-ledger-summary">{fundsControls.records.length} of {funds.length} record(s) · {money(dashboard.summary.total_received)} total</div>
         <TableControls id="receipts-ledger" controls={fundsControls} dateLabel="Received" categoryOptions={fundsControls.categories.map(value => ({ value, label: value }))}/>
-        <div className="ledger-table-scroll">
+        <TableContainer>
           <div className="page-funds-table">
             <div className="page-funds-header">
               {[
@@ -116,7 +107,7 @@ export default function FundsPage({ dashboard, onSubmit, busy, actor, canManage,
                 </div>
               </div>))}
           </div>
-        </div>
+        </TableContainer>
         <Pagination pagination={fundsPagination}/>
         </div>
       </Panel>

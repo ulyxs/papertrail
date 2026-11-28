@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { PageHeader, Panel, PanelHeader, EmptyState } from '../components/ui';
 import { usePagination } from '../hooks/usePagination';
 import Pagination from '../components/Pagination';
@@ -37,22 +37,24 @@ export default function AuditPage({ dashboard }) {
     const [sortDirection, setSortDirection] = useState('desc');
     const [dateOrder, setDateOrder] = useState('desc');
     const filterKey = JSON.stringify([activityType, fromDate, toDate, user]);
-    const users = [...new Set(audit.map(entry => entry.actor))].sort((a, b) => a.localeCompare(b));
-    const filteredAudit = audit
-        .filter(entry => {
+    const users = useMemo(
+        () => [...new Set(audit.map(entry => entry.actor))].sort((a, b) => a.localeCompare(b)),
+        [audit],
+    );
+    const filteredAudit = useMemo(() => audit.filter(entry => {
         const entryDate = getAuditDate(entry);
         return (!activityType || getActivityType(entry.action) === activityType)
             && (!fromDate || entryDate >= fromDate)
             && (!toDate || entryDate <= toDate)
             && (!user || entry.actor === user);
-    })
-        .sort((a, b) => {
+    }), [audit, activityType, fromDate, toDate, user]);
+    const sortedAudit = useMemo(() => [...filteredAudit].sort((a, b) => {
         const comparison = sortField === 'created_at'
             ? getAuditTimestamp(a.created_at) - getAuditTimestamp(b.created_at)
             : String(a[sortField] || '').localeCompare(String(b[sortField] || ''), undefined, { sensitivity: 'base' });
         return sortDirection === 'asc' ? comparison : -comparison;
-    });
-    const auditPagination = usePagination(filteredAudit, 10, filterKey);
+    }), [filteredAudit, sortField, sortDirection]);
+    const auditPagination = usePagination(sortedAudit, 10, filterKey);
     const updateFilter = (setter, value) => {
         setter(value);
         auditPagination.setPage(1);
