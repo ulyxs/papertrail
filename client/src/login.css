@@ -326,6 +326,41 @@
     background 160ms ease;
 }
 
+.password-input-wrap {
+  position: relative;
+}
+
+.password-input-wrap input {
+  padding-right: 72px;
+}
+
+.password-toggle-button {
+  position: absolute;
+  top: 1px;
+  right: 4px;
+  bottom: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  padding: 2px;
+  border: 0;
+  background: transparent;
+  color: var(--dusty-denim);
+  cursor: pointer;
+}
+
+.password-toggle-button img {
+  display: block;
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+
+.password-toggle-button:hover {
+  color: var(--midnight-blue);
+}
+
 .field input::placeholder {
   color: rgba(95, 134, 166, 0.7);
 }

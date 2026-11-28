@@ -1,4 +1,15 @@
 import { useState } from 'react';
+
+function PasswordInput({ id, name, label, autoComplete, placeholder, minLength, maxLength }) {
+    const [visible, setVisible] = useState(false);
+    return (<div className="password-input-wrap">
+      <input id={id} name={name} autoComplete={autoComplete} minLength={minLength} maxLength={maxLength} placeholder={placeholder} required type={visible ? 'text' : 'password'}/>
+      <button className="password-toggle-button" type="button" aria-label={`${visible ? 'Hide' : 'Show'} ${label.toLowerCase()}`} aria-pressed={visible} onClick={() => setVisible(isVisible => !isVisible)}>
+        <img src={visible ? '/hide.png' : '/show.png'} alt="" aria-hidden="true"/>
+      </button>
+    </div>);
+}
+
 export default function AuthPage({ csrfToken, busy, error, success, onLogin, onRegister, onRetry, }) {
     const [mode, setMode] = useState('login');
     async function submitLogin(event) {
@@ -60,7 +71,7 @@ export default function AuthPage({ csrfToken, busy, error, success, onLogin, onR
               </div>
               <div className="field">
                 <label htmlFor="login-password">Password</label>
-                <input id="login-password" name="password" autoComplete="current-password" maxLength={72} placeholder="Enter your password" required type="password"/>
+                <PasswordInput id="login-password" name="password" label="password" autoComplete="current-password" maxLength={72} placeholder="Enter your password"/>
               </div>
               <button className="primary-button" type="submit" disabled={busy || !csrfToken}>{busy ? 'Signing in…' : 'Log in'}</button>
             </form>
@@ -91,11 +102,11 @@ export default function AuthPage({ csrfToken, busy, error, success, onLogin, onR
               <div className="field-grid">
                 <div className="field">
                   <label htmlFor="register-password">Password</label>
-                  <input id="register-password" name="password" autoComplete="new-password" minLength={8} maxLength={72} placeholder="At least 8 characters" required type="password"/>
+                  <PasswordInput id="register-password" name="password" label="password" autoComplete="new-password" minLength={8} maxLength={72} placeholder="At least 8 characters"/>
                 </div>
                 <div className="field">
                   <label htmlFor="confirm-password">Confirm password</label>
-                  <input id="confirm-password" name="confirm_password" autoComplete="new-password" minLength={8} maxLength={72} required type="password"/>
+                  <PasswordInput id="confirm-password" name="confirm_password" label="confirm password" autoComplete="new-password" minLength={8} maxLength={72}/>
                 </div>
               </div>
               <button className="primary-button" type="submit" disabled={busy || !csrfToken}>{busy ? 'Registering…' : 'Register'}</button>
